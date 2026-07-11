@@ -1,6 +1,6 @@
-# TaskFlow 📅✍️
+# TaskFlow
 
-TaskFlow est un agenda de bureau minimaliste, performant et haut de gamme développé en **TypeScript**, **Electron** et **Vite**. Il combine un calendrier interactif à 3 colonnes (inspiré de Google Calendar et Google Tasks) avec un moteur de prise de notes de type **Obsidian** (Markdown, fichiers locaux et liaisons bidirectionnelles).
+TaskFlow est un agenda de bureau minimaliste, performant et haut de gamme développé en **TypeScript**, **Electron** et **Vite**. Il combine un calendrier interactif à 3 colonnes avec un gestionnaire de tâches fluide et un moteur de prise de notes de type **Obsidian** (Markdown, fichiers locaux et liaisons bidirectionnelles).
 
 ---
 
@@ -16,7 +16,7 @@ TaskFlow est un agenda de bureau minimaliste, performant et haut de gamme dével
 * **Vues Calendrier** : Naviguez de manière fluide entre l'affichage mensuel sous forme de grille et les affichages hebdomadaires/journaliers sous forme de timeline horaire.
 * **Gestion des Agendas (Catégories)** : Créez des agendas personnalisés, modifiez leurs couleurs à la volée avec le sélecteur intégré, et renommez-les. En cas de suppression ou de renommage, les tâches associées sont mises à jour ou réassignées automatiquement pour éviter toute perte de données.
 
-### 3. Google Tasks Intégré (Panneau de Droite)
+### 3. Gestionnaire de Tâches Intégré (Panneau de Droite)
 * **Listes de Tâches** : Créez des listes de tâches thématiques, renommez-les inline, ou supprimez-les.
 * **Tâches rapides** : Saisie rapide de tâches au clavier et panneau pliable récapitulant les tâches terminées.
 

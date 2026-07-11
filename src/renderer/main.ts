@@ -946,7 +946,7 @@ function renderTodayLayoutView(): void {
   elViewport.appendChild(container);
 }
 
-// ---- 5. Google Tasks Sidebar Renderer ----
+// ---- 5. Tasks Sidebar Renderer ----
 function deleteList(lName: string): void {
   const index = lists.indexOf(lName);
   if (index > 0) {
@@ -1411,7 +1411,7 @@ document.querySelectorAll('.prio-select-pills .modal-prio-pill').forEach(btn => 
   });
 });
 
-// ---- 8. Google Tasks: Custom Dropdown List Selector ----
+// ---- 8. Tasks Sidebar: Custom Dropdown List Selector ----
 const dropdownTrigger = document.getElementById('listDropdownTrigger');
 const dropdownMenu = document.getElementById('listDropdownMenu');
 
@@ -1493,7 +1493,7 @@ inpNewListName?.addEventListener('keydown', (e) => {
   }
 });
 
-// Google Tasks: Quick Add Task Input
+// Tasks Sidebar: Quick Add Task Input
 const quickInput = document.getElementById('quickAddTaskInput') as HTMLInputElement;
 if (quickInput) {
   quickInput.addEventListener('keydown', e => {
@@ -1523,7 +1523,7 @@ if (quickInput) {
   });
 }
 
-// Google Tasks: Completed Tasks Collapsible Panel toggle
+// Tasks Sidebar: Completed Tasks Collapsible Panel toggle
 document.getElementById('btnToggleCompleted')?.addEventListener('click', () => {
   const panel = document.getElementById('completedTasksList') as HTMLElement;
   const toggle = document.getElementById('btnToggleCompleted') as HTMLElement;
