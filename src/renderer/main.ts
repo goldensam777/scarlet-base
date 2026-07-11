@@ -19,6 +19,20 @@ import DOMPurify from 'dompurify'
 import 'easymde/dist/easymde.min.css'
 import { AgendaNote, AgendaNotesManager } from './agenda.notes'
 
+const ALL_ICONS = {
+  Calendar,
+  BarChart2,
+  Clock,
+  Trash2,
+  Check,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  Tag,
+  X,
+  Pencil
+};
+
 interface Task {
   id: string;
   title: string;
@@ -228,21 +242,8 @@ function render(): void {
   // 5. Render Right Sidebar Tasks
   renderTasksSidebar();
 
-  // 6. Run Lucide icons renderer
   createIcons({
-    icons: {
-      Calendar,
-      BarChart2,
-      Clock,
-      Trash2,
-      Check,
-      Plus,
-      ChevronLeft,
-      ChevronRight,
-      Tag,
-      X,
-      Pencil
-    }
+    icons: ALL_ICONS
   });
 }
 
@@ -1015,7 +1016,7 @@ async function renderNotesView(): Promise<void> {
     });
     
     createIcons({
-      icons: { Calendar, Tag, X }
+      icons: ALL_ICONS
     });
   }
 
@@ -1402,9 +1403,8 @@ function openEditModal(id: string): void {
 
   elModal.style.display = 'flex';
   
-  // Refresh icons
   createIcons({
-    icons: { Trash2 }
+    icons: ALL_ICONS
   });
 }
 
