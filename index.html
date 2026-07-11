@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>agenda</title>
+  <link rel="stylesheet" href="/src/renderer/style.css">
+</head>
+<body>
+<div class="app-container">
+  <!-- 1. LEFT SIDEBAR: Navigation, Mini-Calendar & Filters -->
+  <aside class="sidebar-left">
+    <div class="brand">
+      <span class="logo-text">agenda<span class="dot">.</span></span>
+    </div>
+    
+    <!-- Big Create button -->
+    <button class="create-btn" id="btnOpenCreateModal">
+      <i data-lucide="plus" class="create-icon"></i>
+      <span>Créer</span>
+    </button>
+    
+    <!-- Mini Calendar -->
+    <div class="mini-calendar-widget">
+      <div class="mini-cal-header">
+        <span class="mini-cal-title" id="miniCalTitle">Juillet 2026</span>
+        <div class="mini-cal-arrows">
+          <button class="mini-cal-btn" id="miniPrevBtn"><i data-lucide="chevron-left"></i></button>
+          <button class="mini-cal-btn" id="miniNextBtn"><i data-lucide="chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="mini-cal-grid-head">
+        <span>l</span><span>m</span><span>m</span><span>j</span><span>v</span><span>s</span><span>d</span>
+      </div>
+      <div class="mini-cal-grid-body" id="miniCalBody"></div>
+    </div>
+    
+    <!-- Category Filters -->
+    <div class="filters-widget">
+      <div class="widget-header-row">
+        <span class="widget-title">Mes Agendas</span>
+        <button class="add-widget-btn" id="btnOpenNewCalendar" title="Nouvel Agenda">
+          <i data-lucide="plus"></i>
+        </button>
+      </div>
+      <div class="filters-list" id="calendarFilters">
+        <!-- Rendered dynamically in TS -->
+      </div>
+      
+      <div class="inline-agenda-input-container" id="newCalendarInputContainer" style="display: none;">
+        <input type="text" id="inpNewCalName" placeholder="Nom..." maxlength="20">
+        <div class="inline-agenda-row">
+          <div class="color-picker-wrapper">
+            <span class="color-picker-label">Couleur:</span>
+            <input type="color" id="inpNewCalColor" value="#e0a458">
+          </div>
+          <div class="inline-actions">
+            <button class="inline-btn save" id="btnSaveNewCalendar"><i data-lucide="check"></i></button>
+            <button class="inline-btn cancel" id="btnCancelNewCalendar"><i data-lucide="x"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Theme Switcher -->
+    <div class="theme-widget">
+      <span class="widget-title">Thème</span>
+      <select class="theme-selector" id="themeSelector">
+        <option value="orange-terminal">Ambre (Défaut)</option>
+        <option value="azure">Azure </option>
+        <option value="espresso">Espresso </option>
+        <option value="cobalt">Cobalt </option>
+      </select>
+    </div>
+  </aside>
+
+  <!-- 2. CENTER AREA: Main Google Calendar -->
+  <main class="main-calendar-area">
+    <header class="calendar-header">
+      <div class="header-nav-group">
+        <button class="today-btn" id="btnToday">Aujourd'hui</button>
+        <div class="nav-arrows">
+          <button class="nav-arrow-btn" id="btnPrev"><i data-lucide="chevron-left"></i></button>
+          <button class="nav-arrow-btn" id="btnNext"><i data-lucide="chevron-right"></i></button>
+        </div>
+        <h2 class="view-title" id="viewTitle">Juillet 2026</h2>
+      </div>
+      
+      <div class="view-switch-group">
+        <button class="view-btn" data-view="today">Aujourd'hui.</button>
+        <button class="view-btn" data-view="day">Jour</button>
+        <button class="view-btn" data-view="week">Semaine</button>
+        <button class="view-btn active" data-view="month">Mois</button>
+      </div>
+    </header>
+
+    <div class="calendar-viewport" id="calendarViewport">
+      <!-- Active calendar view (Month, Week, Day) rendered here -->
+    </div>
+  </main>
+
+  <!-- 3. RIGHT SIDEBAR: Google Tasks Panel -->
+  <aside class="sidebar-right">
+    <div class="tasks-panel-header">
+      <div class="tasks-title-group">
+        <i data-lucide="check" class="tasks-check-icon"></i>
+        <h3>Tasks</h3>
+      </div>
+      
+      <!-- Custom Dropdown List Selector -->
+      <div class="custom-dropdown" id="tasksListDropdown">
+        <button class="dropdown-trigger" id="listDropdownTrigger">
+          <span id="currentListName">Ma liste</span>
+          <i data-lucide="chevron-down" class="dropdown-chevron"></i>
+        </button>
+        <div class="dropdown-menu" id="listDropdownMenu" style="display: none;">
+          <div class="menu-items" id="listMenuItems">
+            <!-- Lists rendered here -->
+          </div>
+          <div class="menu-divider"></div>
+          
+          <button class="menu-action-btn" id="btnCreateList">
+            <i data-lucide="plus"></i> <span>Nouvelle liste</span>
+          </button>
+          
+          <div class="inline-list-input-container" id="newListInputContainer" style="display: none;">
+            <input type="text" id="inpNewListName" placeholder="Nom de la liste..." maxlength="20">
+            <div class="inline-actions">
+              <button class="inline-btn save" id="btnSaveNewList"><i data-lucide="check"></i></button>
+              <button class="inline-btn cancel" id="btnCancelNewList"><i data-lucide="x"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quick Add Task -->
+    <div class="quick-add-task-container">
+      <button class="quick-add-plus"><i data-lucide="plus"></i></button>
+      <input type="text" id="quickAddTaskInput" placeholder="Ajouter une tâche..." maxlength="120">
+    </div>
+
+    <!-- Active Tasks list -->
+    <div class="tasks-list-container">
+      <ul class="tasks-list" id="activeTasksList"></ul>
+    </div>
+    
+    <!-- Completed Collapsible Tasks list -->
+    <div class="completed-tasks-container">
+      <button class="completed-tasks-toggle" id="btnToggleCompleted">
+        <i data-lucide="chevron-right" id="completedChevron"></i>
+        <span>Terminées (<span id="completedCount">0</span>)</span>
+      </button>
+      <ul class="tasks-list completed" id="completedTasksList" style="display: none;"></ul>
+    </div>
+  </aside>
+</div>
+
+<!-- 4. MODAL: Create / Edit Task Modal -->
+<div class="modal-overlay" id="taskModal" style="display: none;">
+  <div class="modal-card">
+    <header class="modal-header">
+      <h3 id="modalTitle">Nouvelle tâche</h3>
+      <button class="modal-close-btn" id="btnCloseModal"><i data-lucide="x"></i></button>
+    </header>
+    <div class="modal-body">
+      <!-- Row 1: Title -->
+      <div class="modal-form-group">
+        <label>Titre</label>
+        <input type="text" id="modalInpTitle" placeholder="Ajouter un titre" maxlength="120">
+      </div>
+      
+      <!-- Row 2: Details -->
+      <div class="modal-form-group">
+        <label>Description / Détails</label>
+        <textarea id="modalInpDetail" placeholder="Ajouter des détails" maxlength="160" rows="3"></textarea>
+      </div>
+      
+      <!-- Row 3: Date & Time -->
+      <div class="modal-form-row">
+        <div class="modal-form-group">
+          <label>Date</label>
+          <input type="date" id="modalInpDate">
+        </div>
+        <div class="modal-form-group">
+          <label>Heure (optionnel)</label>
+          <input type="time" id="modalInpTime">
+        </div>
+      </div>
+      
+      <!-- Row 4: List, Calendar Category & Priority -->
+      <div class="modal-form-row three-cols">
+        <div class="modal-form-group">
+          <label>Liste</label>
+          <select id="modalInpList">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+        <div class="modal-form-group">
+          <label>Agenda</label>
+          <select id="modalInpCategory">
+            <option value="Perso">Perso</option>
+            <option value="Travail" selected>Travail</option>
+            <option value="Loisirs">Loisirs</option>
+            <option value="Important">Important</option>
+          </select>
+        </div>
+        
+        <div class="modal-form-group">
+          <label>Priorité</label>
+          <div class="prio-select-pills">
+            <button class="modal-prio-pill low" data-priority="low">basse</button>
+            <button class="modal-prio-pill medium active" data-priority="medium">moyenne</button>
+            <button class="modal-prio-pill high" data-priority="high">haute</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <footer class="modal-footer">
+      <button class="modal-delete-btn" id="btnModalDelete" style="display: none;">
+        <i data-lucide="trash-2"></i> Supprimer
+      </button>
+      <div class="modal-footer-spacer"></div>
+      <button class="modal-cancel-btn" id="btnModalCancel">Annuler</button>
+      <button class="modal-save-btn" id="btnModalSave">Enregistrer</button>
+    </footer>
+  </div>
+</div>
+
+<script type="module" src="/src/renderer/main.ts"></script>
+</body>
+</html>
