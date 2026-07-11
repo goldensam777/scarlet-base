@@ -13,6 +13,12 @@ import {
   Pencil
 } from 'lucide'
 
+import MarkdownIt from 'markdown-it'
+import EasyMDE from 'easymde'
+import DOMPurify from 'dompurify'
+import 'easymde/dist/easymde.min.css'
+import { AgendaNote, AgendaNotesManager } from './agenda.notes'
+
 interface Task {
   id: string;
   title: string;
@@ -26,7 +32,7 @@ interface Task {
 }
 
 interface State {
-  view: 'month' | 'week' | 'day' | 'today';
+  view: 'month' | 'week' | 'day' | 'today' | 'notes';
   cursor: Date;
   selectedDate: string;
   editingTaskId: string | null;
@@ -34,6 +40,7 @@ interface State {
   completedTasksOpen: boolean;
   renamingCalName: string | null;
   renamingListName: string | null;
+  selectedNoteId: string | null;
 }
 
 const DAYS_FR = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
@@ -69,8 +76,11 @@ const state: State = {
   activeList: 'Ma liste',
   completedTasksOpen: false,
   renamingCalName: null,
-  renamingListName: null
+  renamingListName: null,
+  selectedNoteId: null
 };
+
+const notesManager = new AgendaNotesManager();
 
 // Database persistence helpers using Electron IPC file storage (~/.taskflow/db.json)
 async function syncDatabase(): Promise<void> {
@@ -188,6 +198,8 @@ function render(): void {
     elTitle.textContent = fmtLong(state.cursor);
   } else if (state.view === 'today') {
     elTitle.textContent = "aujourd'hui.";
+  } else if (state.view === 'notes') {
+    elTitle.textContent = "notes.";
   }
 
   // 2. Update View Switched buttons
@@ -205,6 +217,8 @@ function render(): void {
     renderDayView();
   } else if (state.view === 'today') {
     renderTodayLayoutView();
+  } else if (state.view === 'notes') {
+    renderNotesView();
   }
 
   // 4. Render Left Sidebar Widgets (Mini-cal & Filters)
@@ -808,12 +822,18 @@ function renderTodayLayoutView(): void {
     <div class="today-container">
       <div class="today-header">
         <span class="today-date-text">${dateText}</span>
-        <span class="today-progress">
-          <span class="today-done-num">${doneCount}</span>
-          <span> / </span>
-          <span>${totalCount}</span>
-          <span> done</span>
-        </span>
+        <div class="today-header-actions">
+          <button class="today-note-btn" id="btnTodayNote" title="Note de ce jour">
+            <i data-lucide="pencil" class="today-note-icon"></i>
+            <span>Note</span>
+          </button>
+          <span class="today-progress">
+            <span class="today-done-num">${doneCount}</span>
+            <span> / </span>
+            <span>${totalCount}</span>
+            <span> done</span>
+          </span>
+        </div>
       </div>
 
       <h1 class="today-title">${customTitle}<span class="today-title-dot">.</span></h1>
@@ -907,8 +927,192 @@ function renderTodayLayoutView(): void {
     }
   });
 
+  container.querySelector('#btnTodayNote')?.addEventListener('click', async () => {
+    const dailyNote = await notesManager.getOrCreateDailyNote(currentDateISO);
+    state.view = 'notes';
+    state.selectedNoteId = dailyNote.id;
+    render();
+  });
+
   elViewport.innerHTML = '';
   elViewport.appendChild(container);
+}
+
+// ---- 4c. Notes Workspace Renderer ----
+let activeMDE: EasyMDE | null = null;
+
+async function renderNotesView(): Promise<void> {
+  // Clean up existing EasyMDE instance
+  if (activeMDE) {
+    activeMDE.toTextArea();
+    activeMDE = null;
+  }
+
+  const notes = await notesManager.listNotes();
+  
+  const container = document.createElement('div');
+  container.className = 'notes-workspace-container';
+
+  container.innerHTML = `
+    <div class="notes-sidebar">
+      <div class="notes-sidebar-header">
+        <input type="text" class="notes-search-input" placeholder="Rechercher des notes..." id="notesSearchInp">
+        <button class="notes-new-btn" id="btnNewNote" title="Nouvelle note">
+          <i data-lucide="plus"></i>
+        </button>
+      </div>
+      <div class="notes-list" id="notesListContainer"></div>
+    </div>
+    <div class="notes-editor-pane" id="notesEditorPane">
+      <div class="notes-placeholder">
+        Sélectionnez ou créez une note pour commencer.
+      </div>
+    </div>
+  `;
+
+  elViewport.innerHTML = '';
+  elViewport.appendChild(container);
+
+  // Render left sidebar list
+  const listContainer = container.querySelector('#notesListContainer') as HTMLElement;
+  const searchInp = container.querySelector('#notesSearchInp') as HTMLInputElement;
+
+  function drawNotesList(filterText: string = ''): void {
+    listContainer.innerHTML = '';
+    const filtered = notes.filter(n => 
+      n.title.toLowerCase().includes(filterText.toLowerCase()) || 
+      n.content.toLowerCase().includes(filterText.toLowerCase())
+    );
+
+    filtered.forEach(note => {
+      const item = document.createElement('div');
+      item.className = 'note-list-item' + (state.selectedNoteId === note.id ? ' active' : '');
+      
+      const isDaily = note.associatedDate ? true : false;
+      const icon = isDaily ? 'calendar' : 'tag';
+
+      item.innerHTML = `
+        <i data-lucide="${icon}" class="note-icon"></i>
+        <span class="note-item-title">${escapeHtml(note.title)}</span>
+        <button class="note-item-delete" title="Supprimer la note"><i data-lucide="x"></i></button>
+      `;
+
+      item.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).closest('.note-item-delete')) return;
+        selectNote(note.id);
+      });
+
+      item.querySelector('.note-item-delete')?.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await notesManager.deleteNote(note.id);
+        if (state.selectedNoteId === note.id) {
+          state.selectedNoteId = null;
+        }
+        render();
+      });
+
+      listContainer.appendChild(item);
+    });
+    
+    createIcons({
+      icons: { Calendar, Tag, X }
+    });
+  }
+
+  // Initial list draw
+  drawNotesList();
+
+  // Search input listener
+  searchInp.addEventListener('input', () => {
+    drawNotesList(searchInp.value);
+  });
+
+  // New Note button listener
+  container.querySelector('#btnNewNote')?.addEventListener('click', async () => {
+    const newNote: AgendaNote = {
+      id: genId(),
+      title: 'Sans titre',
+      content: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      linkedTaskIds: []
+    };
+    await notesManager.saveNote(newNote);
+    state.selectedNoteId = newNote.id;
+    render();
+  });
+
+  // Select and show active note
+  const activeNote = notes.find(n => n.id === state.selectedNoteId);
+  if (activeNote) {
+    const editorPane = container.querySelector('#notesEditorPane') as HTMLElement;
+    editorPane.innerHTML = `
+      <div class="notes-editor-header">
+        <input type="text" class="notes-title-input" id="noteTitleInput" value="${escapeHtml(activeNote.title)}" placeholder="Titre de la note" maxlength="40">
+        <span class="note-save-status" id="noteSaveStatus">enregistré</span>
+      </div>
+      <div class="notes-editor-textarea-wrapper">
+        <textarea id="note-mde-textarea"></textarea>
+      </div>
+    `;
+
+    // Title edit listener
+    const titleInp = editorPane.querySelector('#noteTitleInput') as HTMLInputElement;
+    titleInp.addEventListener('input', async () => {
+      const newTitle = titleInp.value.trim() || 'Sans titre';
+      activeNote.title = newTitle;
+      
+      const statusEl = editorPane.querySelector('#noteSaveStatus') as HTMLElement;
+      statusEl.textContent = 'enregistrement...';
+      
+      await notesManager.saveNote(activeNote);
+      
+      // Update sidebar title in DOM directly to keep input focus
+      const activeItem = listContainer.querySelector('.note-list-item.active .note-item-title');
+      if (activeItem) {
+        activeItem.textContent = newTitle;
+      }
+      statusEl.textContent = 'enregistré';
+    });
+
+    // Initialize EasyMDE with markdown-it renderer
+    const md = new MarkdownIt({
+      html: true,
+      linkify: true,
+      typographer: true
+    });
+
+    activeMDE = new EasyMDE({
+      element: editorPane.querySelector('#note-mde-textarea') as HTMLTextAreaElement,
+      initialValue: activeNote.content,
+      placeholder: 'Commencez à écrire en Markdown...',
+      spellChecker: false,
+      autoDownloadFontAwesome: false,
+      status: false,
+      toolbar: [
+        'bold', 'italic', 'heading', '|',
+        'quote', 'unordered-list', 'ordered-list', '|',
+        'link', 'image', '|',
+        'preview', 'side-by-side', 'fullscreen'
+      ],
+      previewRender: (plainText) => {
+        return DOMPurify.sanitize(md.render(plainText));
+      }
+    });
+
+    activeMDE.codemirror.on('change', async () => {
+      const statusEl = editorPane.querySelector('#noteSaveStatus') as HTMLElement;
+      statusEl.textContent = 'enregistrement...';
+      activeNote.content = activeMDE!.value();
+      await notesManager.saveNote(activeNote);
+      statusEl.textContent = 'enregistré';
+    });
+  }
+}
+
+function selectNote(noteId: string): void {
+  state.selectedNoteId = noteId;
+  render();
 }
 
 // ---- 5. Tasks Sidebar Renderer ----
@@ -1303,7 +1507,7 @@ document.querySelectorAll('.view-switch-group .view-btn').forEach(btn => {
   const button = btn as HTMLButtonElement;
   button.addEventListener('click', () => {
     if (button.dataset.view) {
-      state.view = button.dataset.view as 'month' | 'week' | 'day' | 'today';
+      state.view = button.dataset.view as 'month' | 'week' | 'day' | 'today' | 'notes';
       render();
       syncDatabase();
     }

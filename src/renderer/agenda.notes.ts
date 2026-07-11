@@ -1,8 +1,8 @@
 /**
  * Module: agenda.notes
  * 
- * Ce module définit les structures et la logique architecturale pour l'intégration de la prise
- * de notes (type Markdown / Obsidian) dans l'application Taskonbase.
+ * Ce module définit les structures et la logique pour l'intégration de la prise
+ * de notes (type Markdown / Obsidian) dans l'application TaskFlow.
  */
 
 export interface AgendaNote {
@@ -16,7 +16,7 @@ export interface AgendaNote {
 }
 
 export interface NotesStorageConfig {
-  mode: 'localstorage' | 'filesystem'; // Mode de stockage
+  mode: 'localstorage' | 'filesystem'; // mode 'localstorage' sauvegarde dans ~/.taskflow/db.json
   localDirectoryPath?: string;         // Chemin du dossier physique sur le disque (Vault Obsidian)
 }
 
@@ -26,30 +26,33 @@ export class AgendaNotesManager {
   };
 
   constructor() {
-    this.loadConfig();
+    // La configuration sera chargée de façon asynchrone lors des appels listNotes/saveNote
   }
 
   /**
-   * Charge la configuration de stockage des notes
+   * Charge la configuration de stockage des notes depuis le fichier de BDD
    */
-  private loadConfig(): void {
+  public async loadConfig(): Promise<NotesStorageConfig> {
     try {
-      const raw = localStorage.getItem('agenda-notes-config-v1');
-      if (raw) {
-        this.config = JSON.parse(raw);
+      const db = await (window as any).electronAPI.loadData();
+      if (db && db.notesConfig) {
+        this.config = db.notesConfig;
       }
     } catch (e) {
       console.error('Failed to load notes config', e);
     }
+    return this.config;
   }
 
   /**
-   * Sauvegarde la configuration de stockage
+   * Sauvegarde la configuration de stockage dans le fichier de BDD
    */
-  public saveConfig(config: NotesStorageConfig): void {
+  public async saveConfig(config: NotesStorageConfig): Promise<void> {
     this.config = config;
     try {
-      localStorage.setItem('agenda-notes-config-v1', JSON.stringify(config));
+      const db = await (window as any).electronAPI.loadData() || {};
+      db.notesConfig = config;
+      await (window as any).electronAPI.saveData(db);
     } catch (e) {
       console.error('Failed to save notes config', e);
     }
@@ -59,11 +62,12 @@ export class AgendaNotesManager {
    * Récupère la liste de toutes les notes disponibles
    */
   public async listNotes(): Promise<AgendaNote[]> {
+    await this.loadConfig();
     if (this.config.mode === 'filesystem' && this.config.localDirectoryPath) {
       // TODO: Passer par l'IPC Electron pour lire les fichiers .md du dossier physique
       return this.fetchNotesFromFileSystem();
     } else {
-      return this.fetchNotesFromLocalStorage();
+      return this.fetchNotesFromDB();
     }
   }
 
@@ -78,7 +82,7 @@ export class AgendaNotesManager {
       dailyNote = {
         id: `daily-${dateISO}`,
         title: `${dateISO}`,
-        content: `# Notes pour le ${dateISO}\n\n- \n`,
+        content: `# Notes du ${dateISO}\n\n- \n`,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         associatedDate: dateISO,
@@ -94,10 +98,11 @@ export class AgendaNotesManager {
    */
   public async saveNote(note: AgendaNote): Promise<void> {
     note.updatedAt = new Date().toISOString();
+    await this.loadConfig();
     if (this.config.mode === 'filesystem' && this.config.localDirectoryPath) {
       await this.writeNoteToFileSystem(note);
     } else {
-      await this.writeNoteToLocalStorage(note);
+      await this.writeNoteToDB(note);
     }
   }
 
@@ -105,10 +110,11 @@ export class AgendaNotesManager {
    * Supprime une note
    */
   public async deleteNote(noteId: string): Promise<void> {
+    await this.loadConfig();
     if (this.config.mode === 'filesystem' && this.config.localDirectoryPath) {
       await this.deleteNoteFromFileSystem(noteId);
     } else {
-      await this.deleteNoteFromLocalStorage(noteId);
+      await this.deleteNoteFromDB(noteId);
     }
   }
 
@@ -127,47 +133,56 @@ export class AgendaNotesManager {
     }
   }
 
-  // ── Moteur LocalStorage (Fallback) ───────────────────────────────────
-  private fetchNotesFromLocalStorage(): AgendaNote[] {
+  // ── Moteur BDD de Fichiers (Sauvegarde dans ~/.taskflow/db.json) ────────────────
+  private async fetchNotesFromDB(): Promise<AgendaNote[]> {
     try {
-      const raw = localStorage.getItem('agenda-notes-data-v1');
-      return raw ? JSON.parse(raw) : [];
+      const db = await (window as any).electronAPI.loadData();
+      return db?.notes || [];
     } catch {
       return [];
     }
   }
 
-  private writeNoteToLocalStorage(note: AgendaNote): void {
-    const notes = this.fetchNotesFromLocalStorage();
-    const idx = notes.findIndex(n => n.id === note.id);
-    if (idx >= 0) {
-      notes[idx] = note;
-    } else {
-      notes.push(note);
+  private async writeNoteToDB(note: AgendaNote): Promise<void> {
+    try {
+      const db = await (window as any).electronAPI.loadData() || {};
+      const notes = db.notes || [];
+      const idx = notes.findIndex((n: AgendaNote) => n.id === note.id);
+      if (idx >= 0) {
+        notes[idx] = note;
+      } else {
+        notes.push(note);
+      }
+      db.notes = notes;
+      await (window as any).electronAPI.saveData(db);
+    } catch (e) {
+      console.error('Failed to write note to database', e);
     }
-    localStorage.setItem('agenda-notes-data-v1', JSON.stringify(notes));
   }
 
-  private deleteNoteFromLocalStorage(noteId: string): void {
-    let notes = this.fetchNotesFromLocalStorage();
-    notes = notes.filter(n => n.id !== noteId);
-    localStorage.setItem('agenda-notes-data-v1', JSON.stringify(notes));
+  private async deleteNoteFromDB(noteId: string): Promise<void> {
+    try {
+      const db = await (window as any).electronAPI.loadData() || {};
+      let notes = db.notes || [];
+      notes = notes.filter((n: AgendaNote) => n.id !== noteId);
+      db.notes = notes;
+      await (window as any).electronAPI.saveData(db);
+    } catch (e) {
+      console.error('Failed to delete note from database', e);
+    }
   }
 
-  // ── Moteur File System (Electron IPC Mockups) ────────────────────────
+  // ── Moteur File System (Electron IPC Mockups pour Obsidian) ────────────────────────
   private async fetchNotesFromFileSystem(): Promise<AgendaNote[]> {
-    // Cette méthode invoquera l'API Electron IPC (ex: window.electron.readNotesDirectory())
     console.log('Lecture des fichiers du dossier :', this.config.localDirectoryPath);
     return [];
   }
 
   private async writeNoteToFileSystem(note: AgendaNote): Promise<void> {
-    // Invoquera l'API Electron IPC pour écrire un fichier .md (ex: window.electron.writeNoteFile())
     console.log('Écriture du fichier pour la note :', note.title);
   }
 
   private async deleteNoteFromFileSystem(noteId: string): Promise<void> {
-    // Invoquera l'API Electron IPC pour supprimer un fichier (ex: window.electron.deleteNoteFile())
     console.log('Suppression du fichier pour la note ID :', noteId);
   }
 }
