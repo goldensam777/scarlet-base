@@ -1,5 +1,5 @@
 {
-  "name": "taskonbase",
+  "name": "taskflow",
   "version": "1.0.0",
   "main": "dist-electron/main.js",
   "description": "Minimalist agenda application with Electron and TypeScript",
