@@ -36,7 +36,6 @@ interface State {
   renamingListName: string | null;
 }
 
-const STORAGE_KEY = 'agenda-data-v1';
 const DAYS_FR = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
 const DAYS_FR_SHORT = ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam'];
 const MONTHS_FR = [
@@ -50,94 +49,60 @@ interface CalendarCategory {
   checked: boolean;
 }
 
-function loadCalendars(): CalendarCategory[] {
-  try {
-    const raw = localStorage.getItem('agenda-calendars-v1');
-    return raw ? JSON.parse(raw) : [
-      { name: 'Perso', color: '#38bdf8', checked: true },
-      { name: 'Travail', color: '#e0a458', checked: true },
-      { name: 'Loisirs', color: '#81c995', checked: true },
-      { name: 'Important', color: '#e63946', checked: true }
-    ];
-  } catch (e) {
-    return [
-      { name: 'Perso', color: '#38bdf8', checked: true },
-      { name: 'Travail', color: '#e0a458', checked: true },
-      { name: 'Loisirs', color: '#81c995', checked: true },
-      { name: 'Important', color: '#e63946', checked: true }
-    ];
-  }
-}
+// Initial defaults
+let calendars: CalendarCategory[] = [
+  { name: 'Perso', color: '#38bdf8', checked: true },
+  { name: 'Travail', color: '#e0a458', checked: true },
+  { name: 'Loisirs', color: '#81c995', checked: true },
+  { name: 'Important', color: '#e63946', checked: true }
+];
 
-function saveCalendars(cals: CalendarCategory[]): void {
-  try {
-    localStorage.setItem('agenda-calendars-v1', JSON.stringify(cals));
-  } catch (e) {
-    console.error('Save calendars failed', e);
-  }
-}
+let lists: string[] = ['Ma liste', 'Professionnel', 'Personnel'];
+let tasks: Task[] = [];
+let activeTheme = 'orange-terminal';
 
-const calendars: CalendarCategory[] = loadCalendars();
-
-function loadLists(): string[] {
-  try {
-    const raw = localStorage.getItem('agenda-lists-v1');
-    return raw ? JSON.parse(raw) : ['Ma liste', 'Professionnel', 'Personnel'];
-  } catch (e) {
-    return ['Ma liste', 'Professionnel', 'Personnel'];
-  }
-}
-
-function saveLists(lists: string[]): void {
-  try {
-    localStorage.setItem('agenda-lists-v1', JSON.stringify(lists));
-  } catch (e) {
-    console.error('Save lists failed', e);
-  }
-}
-
-const lists: string[] = loadLists();
-
-function loadTasks(): Task[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    const defaultCat = calendars[0] ? calendars[0].name : 'Travail';
-    return parsed.map((t: any) => ({
-      id: t.id,
-      title: t.title || '',
-      detail: t.detail || '',
-      date: t.date || todayISO(),
-      time: t.time || '',
-      done: !!t.done,
-      priority: t.priority || 'medium',
-      category: t.category || defaultCat,
-      list: t.list || 'Ma liste'
-    }));
-  } catch (e) {
-    return [];
-  }
-}
-
-function saveTasks(tasks: Task[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-  } catch (e) {
-    console.error('Save failed', e);
-  }
-}
-
-let tasks: Task[] = loadTasks();
 const state: State = {
   view: 'month',
   cursor: new Date(),
   selectedDate: todayISO(),
   editingTaskId: null,
-  activeList: lists[0] || 'Ma liste',
+  activeList: 'Ma liste',
   completedTasksOpen: false,
   renamingCalName: null,
   renamingListName: null
 };
+
+// Database persistence helpers using Electron IPC file storage (~/.taskflow/db.json)
+async function syncDatabase(): Promise<void> {
+  const dbData = {
+    tasks,
+    calendars,
+    lists,
+    theme: activeTheme,
+    activeList: state.activeList,
+    view: state.view
+  };
+  try {
+    await (window as any).electronAPI.saveData(dbData);
+  } catch (e) {
+    console.error('Failed to save to database file', e);
+  }
+}
+
+function saveTasks(updatedTasks: Task[]): void {
+  tasks = updatedTasks;
+  syncDatabase();
+}
+
+function saveCalendars(updatedCals: CalendarCategory[]): void {
+  calendars = updatedCals;
+  syncDatabase();
+}
+
+function saveLists(updatedLists: string[]): void {
+  lists = updatedLists;
+  syncDatabase();
+}
 let modalPriority: 'low' | 'medium' | 'high' = 'medium';
 
 function iso(d: Date): string {
@@ -1063,6 +1028,7 @@ function renderTasksSidebar(): void {
           const menu = document.getElementById('listDropdownMenu');
           if (menu) menu.style.display = 'none';
           render();
+          syncDatabase();
         });
         itemWrapper.appendChild(itemBtn);
 
@@ -1339,6 +1305,7 @@ document.querySelectorAll('.view-switch-group .view-btn').forEach(btn => {
     if (button.dataset.view) {
       state.view = button.dataset.view as 'month' | 'week' | 'day' | 'today';
       render();
+      syncDatabase();
     }
   });
 });
@@ -1538,9 +1505,7 @@ document.getElementById('btnToggleCompleted')?.addEventListener('click', () => {
 function applyTheme(themeName: string): void {
   document.body.className = '';
   document.body.classList.add(`theme-${themeName}`);
-  try {
-    localStorage.setItem('agenda-theme-v1', themeName);
-  } catch (e) {}
+  activeTheme = themeName;
   
   const select = document.getElementById('themeSelector') as HTMLSelectElement;
   if (select) {
@@ -1552,12 +1517,9 @@ const themeSel = document.getElementById('themeSelector') as HTMLSelectElement;
 if (themeSel) {
   themeSel.addEventListener('change', () => {
     applyTheme(themeSel.value);
+    syncDatabase();
   });
 }
-
-// Initial theme load
-const savedTheme = localStorage.getItem('agenda-theme-v1') || 'orange-terminal';
-applyTheme(savedTheme);
 
 // ---- 9. Custom Agendas: Inline creator Form Listeners ----
 const btnOpenNewCalendar = document.getElementById('btnOpenNewCalendar');
@@ -1629,5 +1591,28 @@ inpNewCalName?.addEventListener('keydown', (e) => {
   }
 });
 
-// Init
-render();
+// Async initialization on startup
+async function initApp(): Promise<void> {
+  try {
+    const dbData = await (window as any).electronAPI.loadData();
+    if (dbData) {
+      if (dbData.tasks) tasks = dbData.tasks;
+      if (dbData.calendars) calendars = dbData.calendars;
+      if (dbData.lists) lists = dbData.lists;
+      if (dbData.theme) activeTheme = dbData.theme;
+      if (dbData.activeList) state.activeList = dbData.activeList;
+      if (dbData.view) state.view = dbData.view;
+    } else {
+      // First run: save default database payload
+      await syncDatabase();
+    }
+  } catch (e) {
+    console.error('Failed to load database at startup', e);
+  }
+
+  // Load theme and render UI
+  applyTheme(activeTheme);
+  render();
+}
+
+initApp();

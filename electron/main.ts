@@ -1,8 +1,41 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path'
+import fs from 'fs'
+import os from 'os'
 
 // Force the French locale to display date and time pickers in DD/MM/YYYY format
 app.commandLine.appendSwitch('lang', 'fr');
+
+const storageDir = path.join(os.homedir(), '.taskflow');
+const dbPath = path.join(storageDir, 'db.json');
+
+// Ensure directory exists
+if (!fs.existsSync(storageDir)) {
+  fs.mkdirSync(storageDir, { recursive: true });
+}
+
+// IPC Handlers
+ipcMain.handle('db:load', async () => {
+  try {
+    if (fs.existsSync(dbPath)) {
+      const content = fs.readFileSync(dbPath, 'utf-8');
+      return JSON.parse(content);
+    }
+  } catch (e) {
+    console.error('Failed to load database file', e);
+  }
+  return null;
+});
+
+ipcMain.handle('db:save', async (_, data: any) => {
+  try {
+    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf-8');
+    return true;
+  } catch (e) {
+    console.error('Failed to save database file', e);
+    return false;
+  }
+});
 
 function createWindow() {
   const win = new BrowserWindow({
