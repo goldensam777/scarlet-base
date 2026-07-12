@@ -1524,14 +1524,14 @@ function setModalType(type: 'task' | 'event' | 'birthday' | 'reminder'): void {
   const list = document.getElementById('groupModalList') as HTMLElement;
   const priority = document.getElementById('groupModalPriority') as HTMLElement;
 
-  if (detail) detail.style.display = (type === 'birthday') ? 'none' : 'block';
+  if (detail) detail.style.display = (type === 'birthday') ? 'none' : '';
   
-  if (timeTask) timeTask.style.display = (type === 'task') ? 'block' : 'none';
-  if (timeEvent) timeEvent.style.display = (type === 'event') ? 'flex' : 'none';
-  if (timeReminder) timeReminder.style.display = (type === 'reminder') ? 'block' : 'none';
+  if (timeTask) timeTask.style.display = (type === 'task') ? '' : 'none';
+  if (timeEvent) timeEvent.style.display = (type === 'event') ? '' : 'none';
+  if (timeReminder) timeReminder.style.display = (type === 'reminder') ? '' : 'none';
   
-  if (list) list.style.display = (type === 'task') ? 'block' : 'none';
-  if (priority) priority.style.display = (type === 'task') ? 'block' : 'none';
+  if (list) list.style.display = (type === 'task') ? '' : 'none';
+  if (priority) priority.style.display = (type === 'task') ? '' : 'none';
   
   // Adjust layout grid columns of row 4
   const row4 = document.getElementById('groupModalRow4') as HTMLElement;

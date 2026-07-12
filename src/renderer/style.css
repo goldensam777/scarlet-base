@@ -1123,6 +1123,8 @@ html, body {
 .modal-form-group input[type=text],
 .modal-body textarea,
 .modal-body select {
+  width: 100%;
+  box-sizing: border-box;
   background-color: var(--bg-input);
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -1152,6 +1154,8 @@ html, body {
 
 .modal-form-row input[type=date],
 .modal-form-row input[type=time] {
+  width: 100%;
+  box-sizing: border-box;
   background-color: var(--bg-input);
   border: 1px solid var(--border);
   border-radius: 4px;
