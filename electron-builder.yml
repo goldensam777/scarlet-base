@@ -1,0 +1,31 @@
+appId: com.leumaslabs.taskflow
+productName: TaskFlow
+directories:
+  output: release
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - package.json
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+    - target: zip
+      arch:
+        - x64
+        - arm64
+win:
+  target:
+    - nsis
+    - portable
+linux:
+  target:
+    - AppImage
+    - deb
+    - rpm
+publish:
+  provider: github
+  owner: goldensam777
+  repo: taskflow

@@ -4,3 +4,4 @@ dist-electron
 .electron-cache
 .DS_Store
 *.log
+release
