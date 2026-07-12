@@ -59,21 +59,39 @@ tasks_linked: [task-id-1, task-id-2]
 ## 🚀 Démarrage Rapide
 
 ### Prérequis
-* **Node.js** (version 18+)
-* **npm**
+* **Node.js** (version 18 ou supérieure recommandée)
+* **npm** (inclus avec Node.js)
 
-### Installation
-1. Installez les dépendances :
-   ```bash
-   npm install
-   ```
+### Installation Automatique (Recommandé)
+Pour configurer automatiquement le projet (vérification des prérequis et installation des dépendances npm) :
 
-2. Lancez le serveur de développement Vite + Electron :
-   ```bash
-   npm run dev
-   ```
+* **Sur Linux / macOS** :
+  Ouvrez un terminal et exécutez le script d'installation :
+  ```bash
+  ./setup.sh
+  ```
+  *(Note : Le script a été configuré pour être exécutable par défaut).*
 
-3. Compilez l'application pour la production :
-   ```bash
-   npm run build
-   ```
+* **Sur Windows** :
+  Double-cliquez sur le fichier **`setup.bat`** ou exécutez-le dans votre invite de commandes :
+  ```cmd
+  setup.bat
+  ```
+
+### Installation Manuelle
+Si vous préférez installer manuellement les dépendances :
+```bash
+npm install
+```
+
+### Exécution du Projet
+
+* **Lancer en mode développement** (avec rechargement à chaud) :
+  ```bash
+  npm run dev
+  ```
+
+* **Compiler l'application pour la production** :
+  ```bash
+  npm run build
+  ```
