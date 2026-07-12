@@ -1193,13 +1193,10 @@ async function renderNotesView(): Promise<void> {
 
   // New Note button listener
   const btnNewNoteEl = container.querySelector('#btnNewNote');
-  console.log('Searching for btnNewNote element:', btnNewNoteEl);
   if (btnNewNoteEl) {
     btnNewNoteEl.addEventListener('click', async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      console.log('btnNewNote click triggered!');
-      alert('Bouton + cliqué !');
       try {
         const newNote: AgendaNote = {
           id: genId(),
@@ -1214,11 +1211,8 @@ async function renderNotesView(): Promise<void> {
         render();
       } catch (err) {
         console.error('Error creating new note:', err);
-        alert('Erreur lors de la création de la note: ' + err);
       }
     });
-  } else {
-    console.error('CRITICAL: #btnNewNote element was not found in container!');
   }
 
   // Select and show active note
