@@ -8,7 +8,7 @@ echo ==========================================================
 where node >nul 2>nul
 if %errorlevel% neq 0 (
     echo ERREUR : Node.js n'est pas installe sur votre systeme.
-    echo Veuillez telecharger et installer Node.js (version LTS recommandee) depuis : https://nodejs.org/
+    echo Veuillez telecharger et installer Node.js [version LTS recommandee] depuis : https://nodejs.org/
     pause
     exit /b 1
 )
