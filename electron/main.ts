@@ -29,7 +29,17 @@ ipcMain.handle('db:load', async () => {
 
 ipcMain.handle('db:save', async (_, data: any) => {
   try {
-    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf-8');
+    let existingData = {};
+    if (fs.existsSync(dbPath)) {
+      try {
+        const content = fs.readFileSync(dbPath, 'utf-8');
+        existingData = JSON.parse(content);
+      } catch (err) {
+        // ignore parsing errors
+      }
+    }
+    const mergedData = { ...existingData, ...data };
+    fs.writeFileSync(dbPath, JSON.stringify(mergedData, null, 2), 'utf-8');
     return true;
   } catch (e) {
     console.error('Failed to save database file', e);
