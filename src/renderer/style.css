@@ -2316,6 +2316,7 @@ html, body {
   border-radius: 12px;
   overflow: hidden;
   box-sizing: border-box;
+  padding-top: 28px; /* Pousse le contenu vers le bas pour laisser de la place aux boutons de contrôle */
   -webkit-app-region: drag;
 }
 
@@ -2359,17 +2360,11 @@ a,
 
 .window-controls {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 6px;
+  right: 8px;
   z-index: 100;
   display: flex;
   gap: 4px;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-  pointer-events: none;
-}
-
-.app-shell:hover .window-controls {
   opacity: 1;
   pointer-events: auto;
 }
@@ -2380,7 +2375,7 @@ a,
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.04);
+  background: transparent; /* Fond transparent par défaut pour épouser le style monospaced */
   border: none;
   border-radius: 5px;
   color: var(--muted);
@@ -2389,13 +2384,14 @@ a,
 }
 
 .win-ctrl:hover {
-  background: rgba(255, 255, 255, 0.09);
-  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-bright);
 }
 
 .win-ctrl--close:hover {
   background: #e5484d;
   color: #fff;
+  border-radius: 5px;
 }
 
 .win-ctrl.is-maximized svg {
