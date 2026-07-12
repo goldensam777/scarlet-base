@@ -2174,3 +2174,45 @@ async function initApp(): Promise<void> {
 }
 
 initApp();
+
+// Window controls titlebar API bindings (Minimize, Maximize, Close)
+(function () {
+  const titlebarAPI = (window as any).titlebarAPI;
+  if (!titlebarAPI) {
+    console.warn('titlebarAPI is not available in window context.');
+    return;
+  }
+
+  const btnMinimize = document.getElementById('btn-minimize');
+  const btnMaximize = document.getElementById('btn-maximize');
+  const btnClose = document.getElementById('btn-close');
+
+  btnMinimize?.addEventListener('click', () => {
+    titlebarAPI.minimize();
+  });
+
+  btnMaximize?.addEventListener('click', () => {
+    titlebarAPI.maximizeToggle();
+  });
+
+  btnClose?.addEventListener('click', () => {
+    titlebarAPI.close();
+  });
+
+  // Swap icon / apply style when window is maximized
+  titlebarAPI.onMaximizedChange((isMaximized: boolean) => {
+    btnMaximize?.classList.toggle('is-maximized', isMaximized);
+  });
+
+  // Initial state check
+  titlebarAPI.getMaximizedState().then((isMaximized: boolean) => {
+    btnMaximize?.classList.toggle('is-maximized', isMaximized);
+  });
+
+  // Double-click on draggable zone = toggle maximize
+  document.querySelector('.app-shell')?.addEventListener('dblclick', (e) => {
+    // Ignore if click comes from .no-drag element
+    if ((e.target as HTMLElement).closest('.no-drag')) return;
+    titlebarAPI.maximizeToggle();
+  });
+})();

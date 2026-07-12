@@ -49,22 +49,55 @@ ipcMain.handle('db:save', async (_, data: any) => {
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 800,
-    height: 700,
-    backgroundColor: '#0a0a0a',
+    width: 1000,
+    height: 760,
+    minWidth: 480,
+    minHeight: 360,
+    frame: false,
+    transparent: true,          // laisse voir le bureau autour des coins arrondis
+    backgroundColor: '#00000000', // fond totalement transparent (format hex8)
+    hasShadow: true,             // ombre portée native
+    resizable: true,
+    roundedCorners: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
-  })
+  });
 
   if (process.env.VITE_DEV_SERVER_URL) {
-    win.loadURL(process.env.VITE_DEV_SERVER_URL)
+    win.loadURL(process.env.VITE_DEV_SERVER_URL);
   } else {
-    win.loadFile(path.join(__dirname, '../dist/index.html'))
+    win.loadFile(path.join(__dirname, '../dist/index.html'));
   }
+
+  const broadcastMaximizedState = () => {
+    win.webContents.send('titlebar:maximized-state', win.isMaximized());
+  };
+  win.on('maximize', broadcastMaximizedState);
+  win.on('unmaximize', broadcastMaximizedState);
+
+  return win;
 }
+
+ipcMain.on('titlebar:minimize', (event) => {
+  BrowserWindow.fromWebContents(event.sender)?.minimize();
+});
+
+ipcMain.on('titlebar:maximize-toggle', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win) return;
+  win.isMaximized() ? win.unmaximize() : win.maximize();
+});
+
+ipcMain.on('titlebar:close', (event) => {
+  BrowserWindow.fromWebContents(event.sender)?.close();
+});
+
+ipcMain.handle('titlebar:get-maximized-state', (event) => {
+  return BrowserWindow.fromWebContents(event.sender)?.isMaximized() ?? false;
+});
 
 app.whenReady().then(() => {
   Menu.setApplicationMenu(null)

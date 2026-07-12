@@ -101,10 +101,12 @@ body.theme-cobalt {
 }
 
 html, body {
-  background-color: var(--bg);
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
   color: var(--text);
   font-family: var(--mono);
-  min-height: 100vh;
+  height: 100%;
   font-size: 12px;
   overflow: hidden;
 }
@@ -112,8 +114,8 @@ html, body {
 /* --- App Layout --- */
 .app-container {
   display: flex;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 }
 
 /* --- SIDEBAR LEFT: Mini-cal, filters --- */
@@ -2298,4 +2300,104 @@ html, body {
 .editor-toolbar button.active svg,
 .editor-toolbar a.active svg {
   color: var(--accent);
+}
+
+
+/* ============================================================
+   App Shell window layout & window controls
+   ============================================================ */
+
+.app-shell {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  overflow: hidden;
+  box-sizing: border-box;
+  -webkit-app-region: drag;
+}
+
+#app-content {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+/* Custom Drag and No-Drag Regions */
+.sidebar-left,
+.sidebar-right,
+.calendar-viewport,
+.modal-overlay,
+button,
+input,
+select,
+textarea,
+a,
+.no-drag,
+.editor-toolbar,
+.EasyMDEContainer,
+.notes-sidebar,
+.notes-editor-pane {
+  -webkit-app-region: no-drag !important;
+}
+
+.calendar-header {
+  -webkit-app-region: drag;
+}
+
+.header-nav-group,
+.view-switch-group {
+  -webkit-app-region: no-drag;
+}
+
+.header-nav-group h2,
+.header-nav-group .view-title {
+  -webkit-app-region: drag;
+}
+
+.window-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 100;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.app-shell:hover .window-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.win-ctrl {
+  width: 26px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: none;
+  border-radius: 5px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.win-ctrl:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: var(--text);
+}
+
+.win-ctrl--close:hover {
+  background: #e5484d;
+  color: #fff;
+}
+
+.win-ctrl.is-maximized svg {
+  transform: scale(0.82);
 }

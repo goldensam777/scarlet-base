@@ -7,6 +7,25 @@
   <link rel="stylesheet" href="/src/renderer/style.css">
 </head>
 <body>
+<div class="app-shell">
+  <!-- Cluster de contrôles discret, coin haut-droit.
+       Opacité 0 par défaut, apparaît au survol de la fenêtre. -->
+  <div class="window-controls no-drag">
+    <button id="btn-minimize" class="win-ctrl" title="Réduire" aria-label="Réduire">
+      <svg viewBox="0 0 10 10" width="10" height="10"><rect x="1" y="4.5" width="8" height="1" fill="currentColor"/></svg>
+    </button>
+    <button id="btn-maximize" class="win-ctrl" title="Agrandir" aria-label="Agrandir">
+      <svg viewBox="0 0 10 10" width="10" height="10"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+    </button>
+    <button id="btn-close" class="win-ctrl win-ctrl--close" title="Fermer" aria-label="Fermer">
+      <svg viewBox="0 0 10 10" width="10" height="10">
+        <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.2"/>
+      </svg>
+    </button>
+  </div>
+
+  <main id="app-content">
 <div class="app-container">
   <!-- 1. LEFT SIDEBAR: Navigation, Mini-Calendar & Filters -->
   <aside class="sidebar-left">
@@ -255,6 +274,8 @@
       <button class="modal-save-btn" id="btnModalSave">Enregistrer</button>
     </footer>
   </div>
+</div>
+</main>
 </div>
 
 <script type="module" src="/src/renderer/main.ts"></script>
