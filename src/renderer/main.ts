@@ -1133,45 +1133,54 @@ async function renderNotesView(): Promise<void> {
   const searchInp = container.querySelector('#notesSearchInp') as HTMLInputElement;
 
   function drawNotesList(filterText: string = ''): void {
-    listContainer.innerHTML = '';
-    const filtered = notes.filter(n => 
-      n.title.toLowerCase().includes(filterText.toLowerCase()) || 
-      n.content.toLowerCase().includes(filterText.toLowerCase())
-    );
+    try {
+      listContainer.innerHTML = '';
+      const filtered = notes.filter(n => {
+        const titleMatch = (n.title || '').toLowerCase().includes(filterText.toLowerCase());
+        const contentMatch = (n.content || '').toLowerCase().includes(filterText.toLowerCase());
+        return titleMatch || contentMatch;
+      });
 
-    filtered.forEach(note => {
-      const item = document.createElement('div');
-      item.className = 'note-list-item' + (state.selectedNoteId === note.id ? ' active' : '');
+      filtered.forEach(note => {
+        const item = document.createElement('div');
+        item.className = 'note-list-item' + (state.selectedNoteId === note.id ? ' active' : '');
+        
+        const isDaily = note.associatedDate ? true : false;
+        const icon = isDaily ? 'calendar' : 'tag';
+
+        item.innerHTML = `
+          <i data-lucide="${icon}" class="note-icon"></i>
+          <span class="note-item-title">${escapeHtml(note.title || 'Sans titre')}</span>
+          <button class="note-item-delete" title="Supprimer la note"><i data-lucide="x"></i></button>
+        `;
+
+        item.addEventListener('click', (e) => {
+          if ((e.target as HTMLElement).closest('.note-item-delete')) return;
+          selectNote(note.id);
+        });
+
+        item.querySelector('.note-item-delete')?.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          try {
+            await notesManager.deleteNote(note.id);
+            if (state.selectedNoteId === note.id) {
+              state.selectedNoteId = null;
+            }
+            render();
+          } catch (err) {
+            console.error('Failed to delete note:', err);
+          }
+        });
+
+        listContainer.appendChild(item);
+      });
       
-      const isDaily = note.associatedDate ? true : false;
-      const icon = isDaily ? 'calendar' : 'tag';
-
-      item.innerHTML = `
-        <i data-lucide="${icon}" class="note-icon"></i>
-        <span class="note-item-title">${escapeHtml(note.title)}</span>
-        <button class="note-item-delete" title="Supprimer la note"><i data-lucide="x"></i></button>
-      `;
-
-      item.addEventListener('click', (e) => {
-        if ((e.target as HTMLElement).closest('.note-item-delete')) return;
-        selectNote(note.id);
+      createIcons({
+        icons: ALL_ICONS
       });
-
-      item.querySelector('.note-item-delete')?.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        await notesManager.deleteNote(note.id);
-        if (state.selectedNoteId === note.id) {
-          state.selectedNoteId = null;
-        }
-        render();
-      });
-
-      listContainer.appendChild(item);
-    });
-    
-    createIcons({
-      icons: ALL_ICONS
-    });
+    } catch (err) {
+      console.error('Error drawing notes list:', err);
+    }
   }
 
   // Initial list draw
@@ -1183,18 +1192,24 @@ async function renderNotesView(): Promise<void> {
   });
 
   // New Note button listener
-  container.querySelector('#btnNewNote')?.addEventListener('click', async () => {
-    const newNote: AgendaNote = {
-      id: genId(),
-      title: 'Sans titre',
-      content: '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      linkedTaskIds: []
-    };
-    await notesManager.saveNote(newNote);
-    state.selectedNoteId = newNote.id;
-    render();
+  container.querySelector('#btnNewNote')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const newNote: AgendaNote = {
+        id: genId(),
+        title: 'Sans titre',
+        content: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        linkedTaskIds: []
+      };
+      await notesManager.saveNote(newNote);
+      state.selectedNoteId = newNote.id;
+      render();
+    } catch (err) {
+      console.error('Error creating new note:', err);
+    }
   });
 
   // Select and show active note
@@ -1203,7 +1218,7 @@ async function renderNotesView(): Promise<void> {
     const editorPane = container.querySelector('#notesEditorPane') as HTMLElement;
     editorPane.innerHTML = `
       <div class="notes-editor-header">
-        <input type="text" class="notes-title-input" id="noteTitleInput" value="${escapeHtml(activeNote.title)}" placeholder="Titre de la note" maxlength="40">
+        <input type="text" class="notes-title-input" id="noteTitleInput" value="${escapeHtml(activeNote.title || '')}" placeholder="Titre de la note" maxlength="40">
         <span class="note-save-status" id="noteSaveStatus">enregistré</span>
       </div>
       <div class="notes-editor-textarea-wrapper">
@@ -1214,20 +1229,24 @@ async function renderNotesView(): Promise<void> {
     // Title edit listener
     const titleInp = editorPane.querySelector('#noteTitleInput') as HTMLInputElement;
     titleInp.addEventListener('input', async () => {
-      const newTitle = titleInp.value.trim() || 'Sans titre';
-      activeNote.title = newTitle;
-      
-      const statusEl = editorPane.querySelector('#noteSaveStatus') as HTMLElement;
-      statusEl.textContent = 'enregistrement...';
-      
-      await notesManager.saveNote(activeNote);
-      
-      // Update sidebar title in DOM directly to keep input focus
-      const activeItem = listContainer.querySelector('.note-list-item.active .note-item-title');
-      if (activeItem) {
-        activeItem.textContent = newTitle;
+      try {
+        const newTitle = titleInp.value.trim() || 'Sans titre';
+        activeNote.title = newTitle;
+        
+        const statusEl = editorPane.querySelector('#noteSaveStatus') as HTMLElement;
+        statusEl.textContent = 'enregistrement...';
+        
+        await notesManager.saveNote(activeNote);
+        
+        // Update sidebar title in DOM directly to keep input focus
+        const activeItem = listContainer.querySelector('.note-list-item.active .note-item-title');
+        if (activeItem) {
+          activeItem.textContent = newTitle;
+        }
+        statusEl.textContent = 'enregistré';
+      } catch (err) {
+        console.error('Error saving note title:', err);
       }
-      statusEl.textContent = 'enregistré';
     });
 
     // Initialize EasyMDE with markdown-it renderer
@@ -1237,31 +1256,39 @@ async function renderNotesView(): Promise<void> {
       typographer: true
     });
 
-    activeMDE = new EasyMDE({
-      element: editorPane.querySelector('#note-mde-textarea') as HTMLTextAreaElement,
-      initialValue: activeNote.content,
-      placeholder: 'Commencez à écrire en Markdown...',
-      spellChecker: false,
-      autoDownloadFontAwesome: false,
-      status: false,
-      toolbar: [
-        'bold', 'italic', 'heading', '|',
-        'quote', 'unordered-list', 'ordered-list', '|',
-        'link', 'image', '|',
-        'preview', 'side-by-side', 'fullscreen'
-      ],
-      previewRender: (plainText) => {
-        return DOMPurify.sanitize(md.render(plainText));
-      }
-    });
+    try {
+      activeMDE = new EasyMDE({
+        element: editorPane.querySelector('#note-mde-textarea') as HTMLTextAreaElement,
+        initialValue: activeNote.content || '',
+        placeholder: 'Commencez à écrire en Markdown...',
+        spellChecker: false,
+        autoDownloadFontAwesome: false,
+        status: false,
+        toolbar: [
+          'bold', 'italic', 'heading', '|',
+          'quote', 'unordered-list', 'ordered-list', '|',
+          'link', 'image', '|',
+          'preview', 'side-by-side', 'fullscreen'
+        ],
+        previewRender: (plainText) => {
+          return DOMPurify.sanitize(md.render(plainText));
+        }
+      });
 
-    activeMDE.codemirror.on('change', async () => {
-      const statusEl = editorPane.querySelector('#noteSaveStatus') as HTMLElement;
-      statusEl.textContent = 'enregistrement...';
-      activeNote.content = activeMDE!.value();
-      await notesManager.saveNote(activeNote);
-      statusEl.textContent = 'enregistré';
-    });
+      activeMDE.codemirror.on('change', async () => {
+        try {
+          const statusEl = editorPane.querySelector('#noteSaveStatus') as HTMLElement;
+          statusEl.textContent = 'enregistrement...';
+          activeNote.content = activeMDE!.value();
+          await notesManager.saveNote(activeNote);
+          statusEl.textContent = 'enregistré';
+        } catch (err) {
+          console.error('Error auto-saving note content:', err);
+        }
+      });
+    } catch (err) {
+      console.error('Error initializing EasyMDE:', err);
+    }
   }
 }
 
