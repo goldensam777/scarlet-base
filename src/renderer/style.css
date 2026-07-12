@@ -2365,7 +2365,6 @@ a,
   right: 8px;
   z-index: 100;
   display: flex;
-  gap: 4px;
   opacity: 1;
   pointer-events: auto;
 }
@@ -2381,7 +2380,28 @@ a,
   border-radius: 5px;
   color: var(--muted);
   cursor: pointer;
+  margin-left: 4px;
   transition: background 0.1s ease, color 0.1s ease;
+}
+
+.win-ctrl-sub {
+  opacity: 0;
+  max-width: 0;
+  width: 0;
+  margin-left: 0;
+  padding: 0;
+  border: none;
+  pointer-events: none;
+  overflow: hidden;
+  transition: opacity 0.12s ease, max-width 0.18s ease, margin-left 0.18s ease;
+}
+
+.window-controls:hover .win-ctrl-sub {
+  opacity: 1;
+  max-width: 26px;
+  width: 26px;
+  margin-left: 4px;
+  pointer-events: auto;
 }
 
 .win-ctrl:hover {

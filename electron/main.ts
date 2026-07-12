@@ -58,7 +58,6 @@ function createWindow() {
     backgroundColor: '#00000000', // fond totalement transparent (format hex8)
     hasShadow: true,             // ombre portée native
     resizable: true,
-    maximizable: false,          // désactive la maximisation de la fenêtre
     roundedCorners: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
