@@ -49,10 +49,10 @@ ipcMain.handle('db:save', async (_, data: any) => {
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1000,
-    height: 760,
-    minWidth: 480,
-    minHeight: 360,
+    width: 1150,
+    height: 800,
+    minWidth: 1024,
+    minHeight: 700,
     frame: false,
     transparent: true,          // laisse voir le bureau autour des coins arrondis
     backgroundColor: '#00000000', // fond totalement transparent (format hex8)

@@ -493,7 +493,7 @@ html, body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   background-color: var(--bg);
 }
 
@@ -821,7 +821,7 @@ html, body {
   flex-direction: column;
   gap: 16px;
   flex-shrink: 0;
-  height: 100vh;
+  height: 100%;
   transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, opacity 0.25s ease;
   opacity: 1;
 }
@@ -2324,7 +2324,7 @@ html, body {
 #app-content {
   width: 100%;
   height: 100%;
-  overflow: auto;
+  overflow: hidden;
 }
 
 /* Custom Drag and No-Drag Regions */
