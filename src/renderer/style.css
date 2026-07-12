@@ -2317,6 +2317,7 @@ html, body {
   overflow: hidden;
   box-sizing: border-box;
   padding-top: 28px; /* Pousse le contenu vers le bas pour laisser de la place aux boutons de contrôle */
+  padding-bottom: 12px; /* Laisse un espace de respiration en bas pour éviter qu'il touche le bord */
   -webkit-app-region: drag;
 }
 
