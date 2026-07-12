@@ -10,7 +10,11 @@ import {
   ChevronRight,
   Tag,
   X,
-  Pencil
+  Pencil,
+  Menu,
+  Sidebar,
+  Cake,
+  Bell
 } from 'lucide'
 
 import MarkdownIt from 'markdown-it'
@@ -30,7 +34,11 @@ const ALL_ICONS = {
   ChevronRight,
   Tag,
   X,
-  Pencil
+  Pencil,
+  Menu,
+  Sidebar,
+  Cake,
+  Bell
 };
 
 interface Task {
@@ -39,10 +47,12 @@ interface Task {
   detail: string;
   date: string;
   time: string;
+  endTime?: string;
   done: boolean;
   priority: 'low' | 'medium' | 'high';
   category: string;
   list: string;
+  type?: 'task' | 'event' | 'birthday' | 'reminder';
 }
 
 interface State {
@@ -55,6 +65,8 @@ interface State {
   renamingCalName: string | null;
   renamingListName: string | null;
   selectedNoteId: string | null;
+  leftSidebarCollapsed: boolean;
+  rightSidebarCollapsed: boolean;
 }
 
 const DAYS_FR = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
@@ -91,7 +103,9 @@ const state: State = {
   completedTasksOpen: false,
   renamingCalName: null,
   renamingListName: null,
-  selectedNoteId: null
+  selectedNoteId: null,
+  leftSidebarCollapsed: false,
+  rightSidebarCollapsed: false
 };
 
 const notesManager = new AgendaNotesManager();
@@ -104,7 +118,9 @@ async function syncDatabase(): Promise<void> {
     lists,
     theme: activeTheme,
     activeList: state.activeList,
-    view: state.view
+    view: state.view,
+    leftSidebarCollapsed: state.leftSidebarCollapsed,
+    rightSidebarCollapsed: state.rightSidebarCollapsed
   };
   try {
     await (window as any).electronAPI.saveData(dbData);
@@ -578,9 +594,27 @@ function renderEventsPills(dISO: string, container: HTMLElement): void {
     const pill = document.createElement('div');
     const color = getCategoryColor(t.category);
     pill.className = 'cal-event-pill' + (t.done ? ' done' : '');
+    
+    if (t.type) {
+      pill.classList.add(`is-${t.type}`);
+    }
+
     pill.style.setProperty('--event-color', color);
     pill.style.setProperty('--event-bg', hexToRgba(color, 0.08));
-    pill.textContent = `${t.time ? t.time + ' ' : ''}${t.title}`;
+    
+    let text = '';
+    if (t.type === 'birthday') {
+      text = `🎂 ${t.title}`;
+    } else if (t.type === 'reminder') {
+      text = `🔔 ${t.time ? t.time + ' ' : ''}${t.title}`;
+    } else if (t.type === 'event') {
+      text = `🕒 ${t.time || ''}${t.endTime ? '-' + t.endTime : ''} ${t.title}`;
+    } else {
+      text = `${t.time ? t.time + ' ' : ''}${t.title}`;
+    }
+    
+    pill.textContent = text;
+    
     pill.addEventListener('click', (e) => {
       e.stopPropagation();
       openEditModal(t.id);
@@ -613,10 +647,39 @@ function renderWeekView(): void {
     const d = addDays(start, i);
     const dISO = iso(d);
     const isToday = dISO === todayISO();
+    const dayTasks = tasksForDate(dISO);
     
     const colHead = document.createElement('div');
     colHead.className = 'weekViewHeadCol' + (isToday ? ' isToday' : '');
     colHead.innerHTML = `${DAYS_FR_SHORT[d.getDay()]}<span class="num">${d.getDate()}</span>`;
+    
+    // Render all-day entries in the header column
+    const allDayTasks = dayTasks.filter(t => !t.time || t.type === 'birthday');
+    if (allDayTasks.length > 0) {
+      const allDayWrapper = document.createElement('div');
+      allDayWrapper.className = 'week-all-day-wrapper';
+      allDayTasks.forEach(t => {
+        const item = document.createElement('div');
+        const color = getCategoryColor(t.category);
+        item.className = 'week-all-day-pill' + (t.done ? ' done' : '');
+        item.style.setProperty('--event-color', color);
+        item.style.setProperty('--event-bg', hexToRgba(color, 0.08));
+        
+        let prefix = '';
+        if (t.type === 'birthday') prefix = '🎂 ';
+        else if (t.type === 'reminder') prefix = '🔔 ';
+        else if (t.type === 'event') prefix = '🕒 ';
+        
+        item.textContent = `${prefix}${t.title}`;
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openEditModal(t.id);
+        });
+        allDayWrapper.appendChild(item);
+      });
+      colHead.appendChild(allDayWrapper);
+    }
+
     weekHead.appendChild(colHead);
   }
   weekView.appendChild(weekHead);
@@ -657,26 +720,45 @@ function renderWeekView(): void {
       dayCol.appendChild(cell);
     }
 
-    // Render positioned events
+    // Render positioned events (skip all-day events / birthdays without time)
     dayTasks.forEach(t => {
-      if (!t.time) return; // Skip all day events for absolute timeline
+      if (!t.time || t.type === 'birthday') return;
       const [hStr, mStr] = t.time.split(':');
       const hours = parseInt(hStr) || 0;
       const mins = parseInt(mStr) || 0;
       
       const topOffset = (hours + mins / 60) * 60; // 60px per hour
-      const height = 50; // default height for 1 hour approx
+      let height = 50; // default height for 1 hour approx
+      if (t.type === 'event' && t.endTime) {
+        const [ehStr, emStr] = t.endTime.split(':');
+        const eh = parseInt(ehStr) || 0;
+        const em = parseInt(emStr) || 0;
+        const durationHours = (eh + em / 60) - (hours + mins / 60);
+        if (durationHours > 0) {
+          height = Math.max(30, durationHours * 60);
+        }
+      }
 
       const block = document.createElement('div');
       const color = getCategoryColor(t.category);
       block.className = 'timeline-event-block' + (t.done ? ' done' : '');
+      
+      if (t.type) {
+        block.classList.add(`is-${t.type}`);
+      }
+
       block.style.top = `${topOffset}px`;
       block.style.height = `${height}px`;
       block.style.setProperty('--event-color', color);
       block.style.setProperty('--event-bg', hexToRgba(color, 0.08));
+      
+      let prefix = '';
+      if (t.type === 'reminder') prefix = '🔔 ';
+      else if (t.type === 'event') prefix = '🕒 ';
+
       block.innerHTML = `
-        <span class="evt-time">${t.time}</span>
-        <span class="evt-title">${escapeHtml(t.title)}</span>
+        <span class="evt-time">${t.time}${t.type === 'event' && t.endTime ? ' – ' + t.endTime : ''}</span>
+        <span class="evt-title">${prefix}${escapeHtml(t.title)}</span>
       `;
       block.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -701,6 +783,7 @@ function renderDayView(): void {
   const d = state.cursor;
   const dISO = iso(d);
   const isToday = dISO === todayISO();
+  const dayTasks = tasksForDate(dISO);
 
   // Header
   const weekHead = document.createElement('div');
@@ -711,6 +794,34 @@ function renderDayView(): void {
   const colHead = document.createElement('div');
   colHead.className = 'weekViewHeadCol' + (isToday ? ' isToday' : '');
   colHead.innerHTML = `${DAYS_FR[d.getDay()]}<span class="num">${d.getDate()} ${MONTHS_FR[d.getMonth()]}</span>`;
+  
+  // Render all-day entries in the header column
+  const allDayTasks = dayTasks.filter(t => !t.time || t.type === 'birthday');
+  if (allDayTasks.length > 0) {
+    const allDayWrapper = document.createElement('div');
+    allDayWrapper.className = 'week-all-day-wrapper';
+    allDayTasks.forEach(t => {
+      const item = document.createElement('div');
+      const color = getCategoryColor(t.category);
+      item.className = 'week-all-day-pill' + (t.done ? ' done' : '');
+      item.style.setProperty('--event-color', color);
+      item.style.setProperty('--event-bg', hexToRgba(color, 0.08));
+      
+      let prefix = '';
+      if (t.type === 'birthday') prefix = '🎂 ';
+      else if (t.type === 'reminder') prefix = '🔔 ';
+      else if (t.type === 'event') prefix = '🕒 ';
+      
+      item.textContent = `${prefix}${t.title}`;
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openEditModal(t.id);
+      });
+      allDayWrapper.appendChild(item);
+    });
+    colHead.appendChild(allDayWrapper);
+  }
+
   weekHead.appendChild(colHead);
   weekView.appendChild(weekHead);
 
@@ -744,26 +855,45 @@ function renderDayView(): void {
     dayCol.appendChild(cell);
   }
 
-  const dayTasks = tasksForDate(dISO);
+  // Render positioned events (skip all-day events / birthdays without time)
   dayTasks.forEach(t => {
-    if (!t.time) return;
+    if (!t.time || t.type === 'birthday') return;
     const [hStr, mStr] = t.time.split(':');
     const hours = parseInt(hStr) || 0;
     const mins = parseInt(mStr) || 0;
     
     const topOffset = (hours + mins / 60) * 60;
-    const height = 50;
+    let height = 50; // default height for 1 hour approx
+    if (t.type === 'event' && t.endTime) {
+      const [ehStr, emStr] = t.endTime.split(':');
+      const eh = parseInt(ehStr) || 0;
+      const em = parseInt(emStr) || 0;
+      const durationHours = (eh + em / 60) - (hours + mins / 60);
+      if (durationHours > 0) {
+        height = Math.max(30, durationHours * 60);
+      }
+    }
 
     const block = document.createElement('div');
     const color = getCategoryColor(t.category);
     block.className = 'timeline-event-block' + (t.done ? ' done' : '');
+    
+    if (t.type) {
+      block.classList.add(`is-${t.type}`);
+    }
+
     block.style.top = `${topOffset}px`;
     block.style.height = `${height}px`;
     block.style.setProperty('--event-color', color);
     block.style.setProperty('--event-bg', hexToRgba(color, 0.08));
+    
+    let prefix = '';
+    if (t.type === 'reminder') prefix = '🔔 ';
+    else if (t.type === 'event') prefix = '🕒 ';
+
     block.innerHTML = `
-      <span class="evt-time">${t.time}</span>
-      <span class="evt-title">${escapeHtml(t.title)}</span>
+      <span class="evt-time">${t.time}${t.type === 'event' && t.endTime ? ' – ' + t.endTime : ''}</span>
+      <span class="evt-title">${prefix}${escapeHtml(t.title)}</span>
     `;
     block.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -773,7 +903,6 @@ function renderDayView(): void {
   });
 
   grid.appendChild(dayCol);
-
   weekView.appendChild(grid);
   elViewport.innerHTML = '';
   elViewport.appendChild(weekView);
@@ -868,15 +997,36 @@ function renderTodayLayoutView(): void {
     const li = document.createElement('li');
     li.className = 'today-task-item' + (task.done ? ' done' : '');
     
+    if (task.type) {
+      li.classList.add(`is-${task.type}`);
+    }
+    
     // Formatting subtext (time + category + details)
     let subParts: string[] = [];
-    if (task.time) subParts.push(task.time);
+    if (task.type === 'event' && task.time) {
+      subParts.push(`${task.time}${task.endTime ? ' – ' + task.endTime : ''}`);
+    } else if (task.time) {
+      subParts.push(task.time);
+    }
     if (task.category) subParts.push(task.category);
     if (task.detail) subParts.push(task.detail);
     const subText = subParts.join(' · ');
 
+    let ledHtml = `<div class="today-led"></div>`;
+    let isClickable = true;
+    
+    if (task.type === 'birthday') {
+      ledHtml = `<div class="today-type-icon" title="Anniversaire"><i data-lucide="cake"></i></div>`;
+      isClickable = false;
+    } else if (task.type === 'event') {
+      ledHtml = `<div class="today-type-icon" title="Événement"><i data-lucide="clock"></i></div>`;
+      isClickable = false;
+    } else if (task.type === 'reminder') {
+      ledHtml = `<div class="today-led is-reminder" title="Rappel" style="display: flex; align-items: center; justify-content: center;"><i data-lucide="bell" style="width: 8px; height: 8px; color: var(--accent);"></i></div>`;
+    }
+
     li.innerHTML = `
-      <div class="today-led"></div>
+      ${ledHtml}
       <div class="today-task-content">
         <div class="today-task-label">${escapeHtml(task.title)}</div>
         ${subText ? `<div class="today-task-sub">${escapeHtml(subText)}</div>` : ''}
@@ -884,9 +1034,13 @@ function renderTodayLayoutView(): void {
       <button class="today-task-delete" data-id="${task.id}" title="supprimer">×</button>
     `;
 
-    // Clicks on the list item toggles checkbox
+    // Clicks on the list item toggles checkbox or opens edit modal
     li.addEventListener('click', e => {
       if ((e.target as HTMLElement).classList.contains('today-task-delete')) return;
+      if (!isClickable) {
+        openEditModal(task.id);
+        return;
+      }
       task.done = !task.done;
       saveTasks(tasks);
       render();
@@ -1267,8 +1421,8 @@ function renderTasksSidebar(): void {
     });
   }
 
-  // Filter sidebar tasks by active list
-  const sidebarTasks = tasks.filter(t => (t.list || 'Ma liste') === state.activeList);
+  // Filter sidebar tasks by active list and type (only tasks)
+  const sidebarTasks = tasks.filter(t => (t.list || 'Ma liste') === state.activeList && (!t.type || t.type === 'task'));
 
   const active = sidebarTasks.filter(t => !t.done);
   const completed = sidebarTasks.filter(t => t.done);
@@ -1351,19 +1505,63 @@ function populateModalCategories(selectedVal: string = ''): void {
   });
 }
 
+let modalActiveType: 'task' | 'event' | 'birthday' | 'reminder' = 'task';
+
+function setModalType(type: 'task' | 'event' | 'birthday' | 'reminder'): void {
+  modalActiveType = type;
+  
+  // Update tab buttons active state
+  document.querySelectorAll('.modal-type-switcher .modal-type-btn').forEach(btn => {
+    const button = btn as HTMLButtonElement;
+    button.classList.toggle('active', button.dataset.type === type);
+  });
+
+  // Show/hide fields
+  const detail = document.getElementById('groupModalDetail') as HTMLElement;
+  const timeTask = document.getElementById('groupModalTimeTask') as HTMLElement;
+  const timeEvent = document.getElementById('groupModalTimeEvent') as HTMLElement;
+  const timeReminder = document.getElementById('groupModalTimeReminder') as HTMLElement;
+  const list = document.getElementById('groupModalList') as HTMLElement;
+  const priority = document.getElementById('groupModalPriority') as HTMLElement;
+
+  if (detail) detail.style.display = (type === 'birthday') ? 'none' : 'block';
+  
+  if (timeTask) timeTask.style.display = (type === 'task') ? 'block' : 'none';
+  if (timeEvent) timeEvent.style.display = (type === 'event') ? 'flex' : 'none';
+  if (timeReminder) timeReminder.style.display = (type === 'reminder') ? 'block' : 'none';
+  
+  if (list) list.style.display = (type === 'task') ? 'block' : 'none';
+  if (priority) priority.style.display = (type === 'task') ? 'block' : 'none';
+  
+  // Adjust layout grid columns of row 4
+  const row4 = document.getElementById('groupModalRow4') as HTMLElement;
+  if (row4) {
+    if (type === 'task') {
+      row4.className = 'modal-form-row three-cols';
+    } else {
+      row4.className = 'modal-form-row'; // Default 1 col
+    }
+  }
+}
+
 function openCreateModal(dateISO: string, timeVal: string = ''): void {
   state.editingTaskId = null;
   
   const modalTitle = document.getElementById('modalTitle') as HTMLElement;
   const btnDelete = document.getElementById('btnModalDelete') as HTMLElement;
   
-  modalTitle.textContent = 'Nouvelle tâche';
+  modalTitle.textContent = 'Créer une entrée';
   btnDelete.style.display = 'none';
+
+  setModalType('task');
 
   (document.getElementById('modalInpTitle') as HTMLInputElement).value = '';
   (document.getElementById('modalInpDetail') as HTMLTextAreaElement).value = '';
   (document.getElementById('modalInpDate') as HTMLInputElement).value = dateISO;
-  (document.getElementById('modalInpTime') as HTMLInputElement).value = timeVal;
+  (document.getElementById('modalInpTimeTask') as HTMLInputElement).value = timeVal;
+  (document.getElementById('modalInpTimeStart') as HTMLInputElement).value = timeVal;
+  (document.getElementById('modalInpTimeEnd') as HTMLInputElement).value = '';
+  (document.getElementById('modalInpTimeReminder') as HTMLInputElement).value = timeVal || '09:00';
   
   // Set default category according to active list
   let defaultCategory = calendars[0] ? calendars[0].name : 'Travail';
@@ -1385,21 +1583,34 @@ function openEditModal(id: string): void {
   if (!t) return;
 
   state.editingTaskId = id;
+  const type = t.type || 'task';
+  setModalType(type);
 
   const modalTitle = document.getElementById('modalTitle') as HTMLElement;
   const btnDelete = document.getElementById('btnModalDelete') as HTMLElement;
   
-  modalTitle.textContent = 'Modifier la tâche';
+  modalTitle.textContent = (type === 'task') ? 'Modifier la tâche' :
+                           (type === 'event') ? 'Modifier l\'événement' :
+                           (type === 'birthday') ? 'Modifier l\'anniversaire' :
+                           'Modifier le rappel';
   btnDelete.style.display = 'flex';
 
   (document.getElementById('modalInpTitle') as HTMLInputElement).value = t.title;
   (document.getElementById('modalInpDetail') as HTMLTextAreaElement).value = t.detail;
   (document.getElementById('modalInpDate') as HTMLInputElement).value = t.date;
-  (document.getElementById('modalInpTime') as HTMLInputElement).value = t.time;
+  
+  if (type === 'task') {
+    (document.getElementById('modalInpTimeTask') as HTMLInputElement).value = t.time || '';
+  } else if (type === 'event') {
+    (document.getElementById('modalInpTimeStart') as HTMLInputElement).value = t.time || '';
+    (document.getElementById('modalInpTimeEnd') as HTMLInputElement).value = t.endTime || '';
+  } else if (type === 'reminder') {
+    (document.getElementById('modalInpTimeReminder') as HTMLInputElement).value = t.time || '09:00';
+  }
 
   populateModalLists(t.list || 'Ma liste');
   populateModalCategories(t.category || (calendars[0] ? calendars[0].name : 'Travail'));
-  setModalPriority(t.priority);
+  setModalPriority(t.priority || 'medium');
 
   elModal.style.display = 'flex';
   
@@ -1418,30 +1629,48 @@ function saveModalTask(): void {
 
   const detail = (document.getElementById('modalInpDetail') as HTMLTextAreaElement).value.trim();
   const date = (document.getElementById('modalInpDate') as HTMLInputElement).value || todayISO();
-  const time = (document.getElementById('modalInpTime') as HTMLInputElement).value || '';
   const category = (document.getElementById('modalInpCategory') as HTMLSelectElement).value;
-  const list = (document.getElementById('modalInpList') as HTMLSelectElement).value;
+  
+  let time = '';
+  let endTime = '';
+  let list = 'Ma liste';
+  let priority: 'low' | 'medium' | 'high' = 'medium';
+
+  if (modalActiveType === 'task') {
+    time = (document.getElementById('modalInpTimeTask') as HTMLInputElement).value || '';
+    list = (document.getElementById('modalInpList') as HTMLSelectElement).value;
+    priority = modalPriority;
+  } else if (modalActiveType === 'event') {
+    time = (document.getElementById('modalInpTimeStart') as HTMLInputElement).value || '';
+    endTime = (document.getElementById('modalInpTimeEnd') as HTMLInputElement).value || '';
+  } else if (modalActiveType === 'reminder') {
+    time = (document.getElementById('modalInpTimeReminder') as HTMLInputElement).value || '09:00';
+  }
 
   if (state.editingTaskId) {
     const t = tasks.find(item => item.id === state.editingTaskId);
     if (t) {
+      t.type = modalActiveType;
       t.title = title;
       t.detail = detail;
       t.date = date;
       t.time = time;
+      t.endTime = endTime;
       t.category = category;
-      t.priority = modalPriority;
+      t.priority = priority;
       t.list = list;
     }
   } else {
     tasks.push({
       id: genId(),
+      type: modalActiveType,
       title,
       detail,
       date,
       time,
+      endTime,
       done: false,
-      priority: modalPriority,
+      priority,
       category,
       list
     });
@@ -1578,6 +1807,16 @@ document.querySelectorAll('.prio-select-pills .modal-prio-pill').forEach(btn => 
   button.addEventListener('click', () => {
     if (button.dataset.priority) {
       setModalPriority(button.dataset.priority as 'low' | 'medium' | 'high');
+    }
+  });
+});
+
+// Modal Type Switcher Tabs
+document.querySelectorAll('.modal-type-switcher .modal-type-btn').forEach(btn => {
+  const button = btn as HTMLButtonElement;
+  button.addEventListener('click', () => {
+    if (button.dataset.type) {
+      setModalType(button.dataset.type as any);
     }
   });
 });
@@ -1795,23 +2034,54 @@ inpNewCalName?.addEventListener('keydown', (e) => {
   }
 });
 
+// Sidebar Collapsing Logic
+document.getElementById('btnToggleLeftSidebar')?.addEventListener('click', () => {
+  state.leftSidebarCollapsed = !state.leftSidebarCollapsed;
+  const container = document.querySelector('.app-container');
+  container?.classList.toggle('left-collapsed', state.leftSidebarCollapsed);
+  syncDatabase();
+});
+
+document.getElementById('btnToggleRightSidebar')?.addEventListener('click', () => {
+  state.rightSidebarCollapsed = !state.rightSidebarCollapsed;
+  const container = document.querySelector('.app-container');
+  container?.classList.toggle('right-collapsed', state.rightSidebarCollapsed);
+  syncDatabase();
+});
+
 // Async initialization on startup
 async function initApp(): Promise<void> {
   try {
     const dbData = await (window as any).electronAPI.loadData();
     if (dbData) {
-      if (dbData.tasks) tasks = dbData.tasks;
+      if (dbData.tasks) {
+        // Normalize tasks
+        tasks = dbData.tasks.map((t: any) => ({
+          ...t,
+          type: t.type || 'task',
+          endTime: t.endTime || ''
+        }));
+      }
       if (dbData.calendars) calendars = dbData.calendars;
       if (dbData.lists) lists = dbData.lists;
       if (dbData.theme) activeTheme = dbData.theme;
       if (dbData.activeList) state.activeList = dbData.activeList;
       if (dbData.view) state.view = dbData.view;
+      if (dbData.leftSidebarCollapsed !== undefined) state.leftSidebarCollapsed = dbData.leftSidebarCollapsed;
+      if (dbData.rightSidebarCollapsed !== undefined) state.rightSidebarCollapsed = dbData.rightSidebarCollapsed;
     } else {
       // First run: save default database payload
       await syncDatabase();
     }
   } catch (e) {
     console.error('Failed to load database at startup', e);
+  }
+
+  // Apply sidebar states
+  const appContainer = document.querySelector('.app-container');
+  if (appContainer) {
+    appContainer.classList.toggle('left-collapsed', state.leftSidebarCollapsed);
+    appContainer.classList.toggle('right-collapsed', state.rightSidebarCollapsed);
   }
 
   // Load theme and render UI

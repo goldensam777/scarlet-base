@@ -126,6 +126,8 @@ html, body {
   flex-direction: column;
   gap: 28px;
   flex-shrink: 0;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, opacity 0.25s ease;
+  opacity: 1;
 }
 
 .brand {
@@ -818,6 +820,8 @@ html, body {
   gap: 16px;
   flex-shrink: 0;
   height: 100vh;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease, opacity 0.25s ease;
+  opacity: 1;
 }
 
 .tasks-panel-header {
@@ -2119,3 +2123,145 @@ html, body {
 .editor-preview a, .editor-preview-side a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed var(--accent); }
 .editor-preview a:hover, .editor-preview-side a:hover { border-bottom-style: solid; }
 .editor-preview blockquote, .editor-preview-side blockquote { border-left: 3px solid var(--accent); padding-left: 10px; color: var(--muted); margin-bottom: 10px; }
+
+/* --- Modal Type Switcher --- */
+.modal-type-switcher {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-soft);
+  padding-bottom: 12px;
+}
+
+.modal-type-btn {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+  padding: 6px 12px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex: 1;
+  text-align: center;
+  outline: none;
+}
+
+.modal-type-btn:hover {
+  border-color: var(--accent);
+  color: var(--text-bright);
+}
+
+.modal-type-btn.active {
+  background-color: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* --- Collapsible Sidebars & Toggle Buttons --- */
+.sidebar-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 4px;
+  transition: all 0.15s;
+  outline: none;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: var(--accent-soft);
+  color: var(--accent);
+}
+
+.sidebar-toggle-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.app-container.left-collapsed .sidebar-left {
+  width: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  border-right-width: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.app-container.right-collapsed .sidebar-right {
+  width: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  border-left-width: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+/* All day event styles for week/day views */
+.week-all-day-wrapper {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.week-all-day-pill {
+  font-size: 10px;
+  font-family: var(--mono);
+  padding: 3px 6px;
+  border-radius: 3px;
+  background-color: var(--event-bg);
+  border-left: 3px solid var(--event-color);
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  transition: all 0.15s;
+}
+
+.week-all-day-pill:hover {
+  filter: brightness(1.2);
+}
+
+.week-all-day-pill.done {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+/* Today focus view type styling */
+.today-task-item.is-birthday {
+  border-left-color: #f472b6; /* pink accent for birthday */
+}
+.today-task-item.is-event {
+  border-left-color: #38bdf8; /* azure accent for events */
+}
+.today-task-item.is-reminder {
+  border-left-color: #fb7185; /* rose accent for reminders */
+}
+
+.today-type-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--accent-soft);
+  color: var(--accent);
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.today-type-icon svg {
+  width: 10px;
+  height: 10px;
+}

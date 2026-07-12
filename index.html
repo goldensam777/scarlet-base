@@ -78,6 +78,7 @@
   <main class="main-calendar-area">
     <header class="calendar-header">
       <div class="header-nav-group">
+        <button class="sidebar-toggle-btn" id="btnToggleLeftSidebar" title="Basculer la barre latérale gauche"><i data-lucide="menu"></i></button>
         <button class="today-btn" id="btnToday">Aujourd'hui</button>
         <div class="nav-arrows">
           <button class="nav-arrow-btn" id="btnPrev"><i data-lucide="chevron-left"></i></button>
@@ -92,6 +93,7 @@
         <button class="view-btn" data-view="day">Jour</button>
         <button class="view-btn" data-view="week">Semaine</button>
         <button class="view-btn active" data-view="month">Mois</button>
+        <button class="sidebar-toggle-btn" id="btnToggleRightSidebar" title="Basculer le volet des tâches" style="margin-left: 8px;"><i data-lucide="sidebar"></i></button>
       </div>
     </header>
 
@@ -165,6 +167,14 @@
       <button class="modal-close-btn" id="btnCloseModal"><i data-lucide="x"></i></button>
     </header>
     <div class="modal-body">
+      <!-- Type Switcher -->
+      <div class="modal-type-switcher">
+        <button class="modal-type-btn active" data-type="task">Tâche</button>
+        <button class="modal-type-btn" data-type="event">Événement</button>
+        <button class="modal-type-btn" data-type="birthday">Anniversaire</button>
+        <button class="modal-type-btn" data-type="reminder">Rappel</button>
+      </div>
+
       <!-- Row 1: Title -->
       <div class="modal-form-group">
         <label>Titre</label>
@@ -172,32 +182,50 @@
       </div>
       
       <!-- Row 2: Details -->
-      <div class="modal-form-group">
+      <div class="modal-form-group" id="groupModalDetail">
         <label>Description / Détails</label>
         <textarea id="modalInpDetail" placeholder="Ajouter des détails" maxlength="160" rows="3"></textarea>
       </div>
       
       <!-- Row 3: Date & Time -->
       <div class="modal-form-row">
-        <div class="modal-form-group">
+        <div class="modal-form-group" style="flex: 1;">
           <label>Date</label>
           <input type="date" id="modalInpDate">
         </div>
-        <div class="modal-form-group">
+        
+        <!-- Conditional Time Fields -->
+        <div class="modal-form-group" id="groupModalTimeTask" style="flex: 1;">
           <label>Heure (optionnel)</label>
-          <input type="time" id="modalInpTime">
+          <input type="time" id="modalInpTimeTask">
+        </div>
+
+        <div class="modal-form-row" id="groupModalTimeEvent" style="display: none; gap: 8px; flex: 1; margin-top: 0; margin-bottom: 0;">
+          <div class="modal-form-group" style="flex: 1;">
+            <label>Début</label>
+            <input type="time" id="modalInpTimeStart">
+          </div>
+          <div class="modal-form-group" style="flex: 1;">
+            <label>Fin</label>
+            <input type="time" id="modalInpTimeEnd">
+          </div>
+        </div>
+
+        <div class="modal-form-group" id="groupModalTimeReminder" style="display: none; flex: 1;">
+          <label>Heure</label>
+          <input type="time" id="modalInpTimeReminder">
         </div>
       </div>
       
       <!-- Row 4: List, Calendar Category & Priority -->
-      <div class="modal-form-row three-cols">
-        <div class="modal-form-group">
+      <div class="modal-form-row three-cols" id="groupModalRow4">
+        <div class="modal-form-group" id="groupModalList">
           <label>Liste</label>
           <select id="modalInpList">
             <!-- Populated dynamically -->
           </select>
         </div>
-        <div class="modal-form-group">
+        <div class="modal-form-group" id="groupModalCategory">
           <label>Agenda</label>
           <select id="modalInpCategory">
             <option value="Perso">Perso</option>
@@ -207,7 +235,7 @@
           </select>
         </div>
         
-        <div class="modal-form-group">
+        <div class="modal-form-group" id="groupModalPriority">
           <label>Priorité</label>
           <div class="prio-select-pills">
             <button class="modal-prio-pill low" data-priority="low">basse</button>
