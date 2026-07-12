@@ -2269,3 +2269,24 @@ html, body {
   width: 10px;
   height: 10px;
 }
+
+/* EasyMDE Lucide Toolbar Icon Styling */
+.editor-toolbar button svg,
+.editor-toolbar a svg {
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+  display: block;
+  margin: auto;
+  transition: color 0.15s;
+}
+
+.editor-toolbar button:hover svg,
+.editor-toolbar a:hover svg {
+  color: var(--text-bright);
+}
+
+.editor-toolbar button.active svg,
+.editor-toolbar a.active svg {
+  color: var(--accent);
+}

@@ -14,7 +14,18 @@ import {
   Menu,
   Sidebar,
   Cake,
-  Bell
+  Bell,
+  Bold,
+  Italic,
+  Heading,
+  Quote,
+  List,
+  ListOrdered,
+  Link,
+  Image,
+  Eye,
+  Columns,
+  Maximize
 } from 'lucide'
 
 import MarkdownIt from 'markdown-it'
@@ -38,7 +49,18 @@ const ALL_ICONS = {
   Menu,
   Sidebar,
   Cake,
-  Bell
+  Bell,
+  Bold,
+  Italic,
+  Heading,
+  Quote,
+  List,
+  ListOrdered,
+  Link,
+  Image,
+  Eye,
+  Columns,
+  Maximize
 };
 
 interface Task {
@@ -1277,6 +1299,36 @@ async function renderNotesView(): Promise<void> {
           return DOMPurify.sanitize(md.render(plainText));
         }
       });
+
+      // Map EasyMDE toolbar buttons to Lucide icons
+      const toolbarEl = editorPane.querySelector('.editor-toolbar');
+      if (toolbarEl) {
+        const buttons = toolbarEl.querySelectorAll('button, a');
+        buttons.forEach(btn => {
+          const button = btn as HTMLElement;
+          let iconName = '';
+          if (button.classList.contains('bold')) iconName = 'bold';
+          else if (button.classList.contains('italic')) iconName = 'italic';
+          else if (button.classList.contains('heading')) iconName = 'heading';
+          else if (button.classList.contains('quote')) iconName = 'quote';
+          else if (button.classList.contains('unordered-list')) iconName = 'list';
+          else if (button.classList.contains('ordered-list')) iconName = 'list-ordered';
+          else if (button.classList.contains('link')) iconName = 'link';
+          else if (button.classList.contains('image')) iconName = 'image';
+          else if (button.classList.contains('preview')) iconName = 'eye';
+          else if (button.classList.contains('side-by-side')) iconName = 'columns';
+          else if (button.classList.contains('fullscreen')) iconName = 'maximize';
+          
+          if (iconName) {
+            // Remove FontAwesome classes
+            button.className = button.className.replace(/\bfa\b/g, '').replace(/\bfa-\S+/g, '');
+            button.innerHTML = `<i data-lucide="${iconName}"></i>`;
+          }
+        });
+        createIcons({
+          icons: ALL_ICONS
+        });
+      }
 
       activeMDE.codemirror.on('change', async () => {
         try {
