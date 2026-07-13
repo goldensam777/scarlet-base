@@ -67,7 +67,7 @@ else
                 echo -e "  ${GREEN}✓ Projet déjà à jour.${NC}"
             else
                 echo -e "  ${YELLOW}⚠ Une mise à jour est disponible sur le dépôt distant.${NC}"
-                read -p "Voulez-vous télécharger et installer la dernière mise à jour ? (O/n) : " -n 1 -r
+                read -p "Voulez-vous télécharger et installer la dernière mise à jour ? (O/n) : " -n 1 -r < /dev/tty
                 echo ""
                 if [[ $REPLY =~ ^[OoYy]$ ]] || [[ -z $REPLY ]]; then
                     echo "Mise à jour du projet..."
@@ -99,7 +99,7 @@ fi
 
 # ÉTAPE 4 — Lancement de l'application
 echo -e "\n${BLUE}→ Étape 4 : Lancement de l'application...${NC}"
-read -p "Voulez-vous lancer l'application en mode développement maintenant ? (O/n) : " -n 1 -r
+read -p "Voulez-vous lancer l'application en mode développement maintenant ? (O/n) : " -n 1 -r < /dev/tty
 echo ""
 if [[ $REPLY =~ ^[OoYy]$ ]] || [[ -z $REPLY ]]; then
     echo -e "${GREEN}Lancement de Scarlet Base via start.sh...${NC}"
