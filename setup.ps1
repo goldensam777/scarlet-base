@@ -103,17 +103,50 @@ Write-Host "  ✓ Dépendances installées avec succès." -ForegroundColor Green
 
 # ÉTAPE HORS-SÉRIE — Raccourci Bureau Windows
 Write-Host ""
-Write-Host "→ Étape supplémentaire : Création du raccourci sur le Bureau..." -ForegroundColor Cyan
+Write-Host "→ Étape supplémentaire : Création de l'icône et du raccourci Bureau..." -ForegroundColor Cyan
 try {
     $currentDir = (Get-Location).Path
+    
+    # 1. Conversion de l'icône PNG en ICO
+    $pngPath = Join-Path $currentDir "build\icons\256x256.png"
+    $icoPath = Join-Path $currentDir "build\icon.ico"
+    if (Test-Path $pngPath) {
+        $pngBytes = [System.IO.File]::ReadAllBytes($pngPath)
+        $pngSize = $pngBytes.Length
+        $icoHeader = [byte[]]@(
+            0, 0, 1, 0, 1, 0,
+            0, 0, 0, 0, 1, 0, 32, 0,
+            ($pngSize -band 0xff), ([math]::Floor($pngSize / 256) -band 0xff), ([math]::Floor($pngSize / 65536) -band 0xff), ([math]::Floor($pngSize / 16777216) -band 0xff),
+            22, 0, 0, 0
+        )
+        $icoBytes = New-Object byte[] ($icoHeader.Length + $pngBytes.Length)
+        [System.Buffer]::BlockCopy($icoHeader, 0, $icoBytes, 0, $icoHeader.Length)
+        [System.Buffer]::BlockCopy($pngBytes, 0, $icoBytes, $icoHeader.Length, $pngBytes.Length)
+        [System.IO.File]::WriteAllBytes($icoPath, $icoBytes)
+    }
+
+    # 2. Création de start.vbs pour lancer l'app en arrière-plan sans terminal
+    $vbsPath = Join-Path $currentDir "start.vbs"
+    $vbsContent = @"
+Set WshShell = CreateObject("WScript.Shell")
+WshShell.CurrentDirectory = CreateObject("Scripting.FileSystemObject").GetParentFolderName(WScript.ScriptFullName)
+WshShell.Run "cmd /c start.bat", 0, False
+"@
+    [System.IO.File]::WriteAllText($vbsPath, $vbsContent)
+
+    # 3. Création du raccourci .lnk sur le Bureau
     $desktopPath = [System.IO.Path]::Combine([Environment]::GetFolderPath("Desktop"), "Scarlet Base.lnk")
     $WshShell = New-Object -ComObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut($desktopPath)
-    $Shortcut.TargetPath = Join-Path $currentDir "start.bat"
+    $Shortcut.TargetPath = "wscript.exe"
+    $Shortcut.Arguments = "`"$vbsPath`""
     $Shortcut.WorkingDirectory = $currentDir
+    if (Test-Path $icoPath) {
+        $Shortcut.IconLocation = "$icoPath,0"
+    }
     $Shortcut.Description = "Lancer Scarlet Base"
     $Shortcut.Save()
-    Write-Host "  ✓ Raccourci créé sur le Bureau Windows." -ForegroundColor Green
+    Write-Host "  ✓ Icône ICO générée et raccourci créé sur le Bureau Windows (sans terminal)." -ForegroundColor Green
 } catch {
     Write-Host "  ⚠ Impossible de créer le raccourci sur le Bureau." -ForegroundColor Yellow
 }

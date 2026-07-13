@@ -123,7 +123,7 @@ Name=Scarlet Base
 Comment=Agenda & Notes (TypeScript/Electron/Vite)
 Exec=$PROJECT_DIR/start.sh
 Icon=$PROJECT_DIR/build/icon.png
-Terminal=true
+Terminal=false
 Categories=Office;Utility;
 EOF
 

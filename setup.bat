@@ -96,12 +96,12 @@ echo   [ok] Dependances installees avec succes.
 
 :: ÉTAPE HORS-SÉRIE — Raccourci Bureau Windows
 echo.
-echo → Etape supplementaire : Creation du raccourci sur le Bureau...
-powershell -NoProfile -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut([System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'Scarlet Base.lnk')); $Shortcut.TargetPath = '%~dp0start.bat'; $Shortcut.WorkingDirectory = '%~dp0'; $Shortcut.Description = 'Lancer Scarlet Base'; $Shortcut.Save()" >nul 2>&1
+echo → Etape supplementaire : Creation de l'icone et du raccourci Bureau...
+powershell -NoProfile -Command "$currentDir = '%~dp0'; $pngPath = Join-Path $currentDir 'build\icons\256x256.png'; $icoPath = Join-Path $currentDir 'build\icon.ico'; if (Test-Path $pngPath) { $pngBytes = [System.IO.File]::ReadAllBytes($pngPath); $pngSize = $pngBytes.Length; $icoHeader = [byte[]]@(0,0,1,0,1,0,0,0,0,0,1,0,32,0,($pngSize -band 0xff),([math]::Floor($pngSize/256) -band 0xff),([math]::Floor($pngSize/65536) -band 0xff),([math]::Floor($pngSize/16777216) -band 0xff),22,0,0,0); $icoBytes = New-Object byte[] ($icoHeader.Length + $pngBytes.Length); [System.Buffer]::BlockCopy($icoHeader,0,$icoBytes,0,$icoHeader.Length); [System.Buffer]::BlockCopy($pngBytes,0,$icoBytes,$icoHeader.Length,$pngBytes.Length); [System.IO.File]::WriteAllBytes($icoPath,$icoBytes) }; $vbsPath = Join-Path $currentDir 'start.vbs'; $vbsContent = 'Set WshShell = CreateObject(' + [char]34 + 'WScript.Shell' + [char]34 + ')' + [char]13 + [char]10 + 'WshShell.CurrentDirectory = CreateObject(' + [char]34 + 'Scripting.FileSystemObject' + [char]34 + ').GetParentFolderName(WScript.ScriptFullName)' + [char]13 + [char]10 + 'WshShell.Run ' + [char]34 + 'cmd /c start.bat' + [char]34 + ', 0, False'; [System.IO.File]::WriteAllText($vbsPath,$vbsContent); $desktopPath = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'Scarlet Base.lnk'); $WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut($desktopPath); $Shortcut.TargetPath = 'wscript.exe'; $Shortcut.Arguments = [char]34 + $vbsPath + [char]34; $Shortcut.WorkingDirectory = $currentDir; if (Test-Path $icoPath) { $Shortcut.IconLocation = $icoPath + ',0' }; $Shortcut.Description = 'Lancer Scarlet Base'; $Shortcut.Save()" >nul 2>&1
 if errorlevel 1 (
     echo   [warning] Impossible de creer le raccourci sur le Bureau.
 ) else (
-    echo   [ok] Raccourci cree sur le Bureau avec succes.
+    echo   [ok] Raccourci cree sur le Bureau avec succes [lancement silencieux avec icone].
 )
 
 :: ÉTAPE 4 — Lancement de l'application
