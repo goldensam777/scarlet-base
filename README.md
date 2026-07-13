@@ -55,17 +55,24 @@ tasks_linked: [task-id-1, task-id-2]
 * **npm** (inclus avec Node.js)
 
 ### Installation Automatique (Recommandé)
-Pour configurer automatiquement le projet (vérification des prérequis et installation des dépendances npm) :
+Pour configurer automatiquement le projet en une seule ligne (vérification des prérequis et installation des dépendances npm) :
 
 * **Sur Linux / macOS** :
-  Ouvrez un terminal et exécutez le script d'installation :
+  Exécutez la commande suivante dans votre terminal (`curl`) :
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/goldensam777/scarlet-base/master/setup.sh | bash
+  ```
+  *Ou si vous avez déjà cloné le dépôt localement :*
   ```bash
   ./setup.sh
   ```
-  *(Note : Le script a été configuré pour être exécutable par défaut).*
 
-* **Sur Windows** :
-  Double-cliquez sur le fichier **`setup.bat`** ou exécutez-le dans votre invite de commandes :
+* **Sur Windows (PowerShell)** :
+  Exécutez la commande suivante dans PowerShell (`irm | iex`) :
+  ```powershell
+  irm https://raw.githubusercontent.com/goldensam777/scarlet-base/master/setup.ps1 | iex
+  ```
+  *Ou si vous avez déjà cloné le dépôt localement, double-cliquez sur `setup.bat` ou lancez :*
   ```cmd
   setup.bat
   ```
