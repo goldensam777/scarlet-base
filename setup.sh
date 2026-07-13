@@ -16,7 +16,7 @@ echo "Ce script va préparer le projet sur votre machine :"
 echo "1. Vérification des outils requis (git, node, npm)"
 echo "2. Vérification et clonage éventuel du projet"
 echo "3. Installation des dépendances npm"
-echo "4. Lancement optionnel de VS Code et de l'application"
+echo "4. Lancement optionnel de l'application via start.sh"
 echo ""
 
 # ÉTAPE 1 — Vérifications
@@ -97,32 +97,20 @@ else
     exit 1
 fi
 
-# ÉTAPE 4 — Ouverture VS Code
-echo -e "\n${BLUE}→ Étape 4 : Lancement et IDE...${NC}"
-if command -v code &> /dev/null; then
-    read -p "Voulez-vous ouvrir le projet dans VS Code ? (O/n) : " -n 1 -r
-    echo ""
-    if [[ $REPLY =~ ^[OoYy]$ ]] || [[ -z $REPLY ]]; then
-        echo "Ouverture de VS Code..."
-        code .
-    fi
-else
-    echo -e "${YELLOW}⚠ VS Code n'a pas été détecté dans le PATH.${NC}"
-fi
-
-# ÉTAPE 5 — Lancement de l'application
-echo ""
+# ÉTAPE 4 — Lancement de l'application
+echo -e "\n${BLUE}→ Étape 4 : Lancement de l'application...${NC}"
 read -p "Voulez-vous lancer l'application en mode développement maintenant ? (O/n) : " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[OoYy]$ ]] || [[ -z $REPLY ]]; then
-    echo -e "${GREEN}Lancement de Scarlet Base...${NC}"
-    npm run dev
+    echo -e "${GREEN}Lancement de Scarlet Base via start.sh...${NC}"
+    chmod +x start.sh
+    ./start.sh
 else
     echo -e "${GREEN}==========================================================${NC}"
     echo -e "${GREEN}✔ Installation terminée avec succès !${NC}"
     echo -e "${GREEN}==========================================================${NC}"
     echo "Pour lancer le projet plus tard :"
-    echo -e "  ${BLUE}npm run dev${NC}"
+    echo -e "  ${BLUE}./start.sh${NC}"
     echo ""
     echo "Pour compiler pour la production :"
     echo -e "  ${BLUE}npm run build${NC}"

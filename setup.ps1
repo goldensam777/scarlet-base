@@ -8,7 +8,7 @@ Write-Host "Ce script va préparer le projet sur votre machine :"
 Write-Host "1. Vérification des outils requis (git, node, npm)"
 Write-Host "2. Vérification et clonage éventuel du projet"
 Write-Host "3. Installation des dépendances npm"
-Write-Host "4. Lancement optionnel de VS Code et de l'application"
+Write-Host "4. Lancement optionnel de l'application via start.ps1"
 Write-Host ""
 
 # ÉTAPE 1 — Vérifications
@@ -93,32 +93,18 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host "  ✓ Dépendances installées avec succès." -ForegroundColor Green
 
-# ÉTAPE 4 — Ouverture VS Code
-Write-Host ""
-Write-Host "→ Étape 4 : Lancement et IDE..." -ForegroundColor Cyan
-$codePath = Get-Command "code" -ErrorAction SilentlyContinue
-if ($null -ne $codePath) {
-    $choiceCode = Read-Host "Voulez-vous ouvrir le projet dans VS Code ? (O/N)"
-    if ($choiceCode -match '^[OoYy]') {
-        Write-Host "Ouverture de VS Code..."
-        code .
-    }
-} else {
-    Write-Host "  ⚠ VS Code n'a pas été détecté dans votre variable d'environnement PATH." -ForegroundColor Yellow
-}
-
-# ÉTAPE 5 — Lancement de l'application
+# ÉTAPE 4 — Lancement de l'application
 Write-Host ""
 $choiceApp = Read-Host "Voulez-vous lancer l'application en mode développement maintenant ? (O/N)"
 if ($choiceApp -match '^[OoYy]') {
-    Write-Host "Lancement de Scarlet Base..." -ForegroundColor Green
-    npm run dev
+    Write-Host "Lancement de Scarlet Base via start.ps1..." -ForegroundColor Green
+    ./start.ps1
 } else {
     Write-Host "==========================================================" -ForegroundColor Green
     Write-Host "✔ Installation terminée avec succès !" -ForegroundColor Green
     Write-Host "==========================================================" -ForegroundColor Green
     Write-Host "Pour lancer le projet plus tard :"
-    Write-Host "  npm run dev" -ForegroundColor Blue
+    Write-Host "  ./start.ps1" -ForegroundColor Blue
     Write-Host ""
     Write-Host "Pour compiler pour la production :"
     Write-Host "  npm run build" -ForegroundColor Blue
