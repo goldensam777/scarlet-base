@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, dialog } from 'electron'
 import path from 'path'
 import fs from 'fs'
 import os from 'os'
@@ -72,28 +72,63 @@ ipcMain.handle('db:load', async () => {
       } catch (parseError) {
         console.error('Failed to parse db.json, attempting backup recovery...', parseError);
         if (fs.existsSync(bakPath)) {
-          const bakContent = fs.readFileSync(bakPath, 'utf-8');
-          const parsedBak = JSON.parse(bakContent);
-          // Restore db.json from backup
-          fs.writeFileSync(dbPath, bakContent, 'utf-8');
-          console.log('Successfully recovered database from backup file.');
-          return parsedBak;
+          try {
+            const bakContent = fs.readFileSync(bakPath, 'utf-8');
+            const parsedBak = JSON.parse(bakContent);
+            // Restore db.json from backup
+            fs.writeFileSync(dbPath, bakContent, 'utf-8');
+            console.log('Successfully recovered database from backup file.');
+            return parsedBak;
+          } catch (bakError) {
+            console.error('Backup db.bak is also invalid!', bakError);
+            handleDbCorruption(parseError);
+          }
+        } else {
+          handleDbCorruption(parseError);
         }
-        throw parseError; // Re-throw if no backup is available
       }
     } else if (fs.existsSync(bakPath)) {
-      // If db.json is missing but bak exists
-      const bakContent = fs.readFileSync(bakPath, 'utf-8');
-      const parsedBak = JSON.parse(bakContent);
-      fs.writeFileSync(dbPath, bakContent, 'utf-8');
-      console.log('Successfully restored db.json from backup.');
-      return parsedBak;
+      try {
+        const bakContent = fs.readFileSync(bakPath, 'utf-8');
+        const parsedBak = JSON.parse(bakContent);
+        fs.writeFileSync(dbPath, bakContent, 'utf-8');
+        console.log('Successfully restored db.json from backup.');
+        return parsedBak;
+      } catch (bakError) {
+        console.error('Backup db.bak is invalid!', bakError);
+        handleDbCorruption(bakError);
+      }
     }
   } catch (e) {
     console.error('Failed to load database file', e);
   }
   return null;
 });
+
+function handleDbCorruption(error: any) {
+  console.error('Database corruption detected:', error);
+  try {
+    const timestamp = Date.now();
+    const corruptDbPath = dbPath + `.${timestamp}.corrupt`;
+    const corruptBakPath = dbPath + `.bak.${timestamp}.corrupt`;
+
+    if (fs.existsSync(dbPath)) {
+      fs.renameSync(dbPath, corruptDbPath);
+    }
+    const bakPath = dbPath + '.bak';
+    if (fs.existsSync(bakPath)) {
+      fs.renameSync(bakPath, corruptBakPath);
+    }
+
+    dialog.showErrorBox(
+      "Base de données corrompue",
+      "Les fichiers de données (db.json et sa sauvegarde) de Scarlet Base semblent corrompus et n'ont pas pu être lus.\n\n" +
+      "Une nouvelle base de données vide a été initialisée. Les fichiers corrompus ont été sauvegardés sous l'extension '.corrupt' dans votre dossier de profil (~/.scarletbase) pour une récupération manuelle possible."
+    );
+  } catch (err) {
+    console.error('Failed during corruption handling:', err);
+  }
+}
 
 ipcMain.handle('db:save', async (_, data: any) => {
   const tmpPath = dbPath + '.tmp';
