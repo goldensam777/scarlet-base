@@ -50,6 +50,12 @@ tasks_linked: [task-id-1, task-id-2]
 
 ## 🚀 Démarrage Rapide
 
+> [!IMPORTANT]
+> **Avertissement / Disclaimer sur l'installation :**
+> * **Sécurité** : L'exécution de scripts d'installation automatique à distance (via `curl | bash` ou `irm | iex`) réalise des actions sur votre machine (clonage Git, installation npm). Veillez à toujours examiner le code source des scripts (`setup.sh`, `setup.ps1`, `setup.bat`) avant de les exécuter.
+> * **Dépendances** : L'installation de npm via ces scripts configure l'ensemble des modules nécessaires *des deux côtés* de l'application : le processus principal (Electron/Backend) et le processus de rendu (Vite/Frontend), au travers d'un unique dossier `node_modules` à la racine.
+> * **Précautions** : Assurez-vous d'avoir une connexion internet active et d'exécuter l'installation dans un répertoire où vous disposez des droits d'écriture.
+
 ### Prérequis
 * **Node.js** (version 18 ou supérieure recommandée)
 * **npm** (inclus avec Node.js)
