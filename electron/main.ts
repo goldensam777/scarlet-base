@@ -33,12 +33,13 @@ function createLinuxDesktopFile() {
   try {
     const homeDir = os.homedir();
     const desktopFilePath = path.join(homeDir, '.local/share/applications/scarlet-base.desktop');
-    const iconPath = '/home/leumas-nedlog/dev/side_projects/scarletbase/build/icon.png';
+    const iconPath = path.join(__dirname, '../build/icon.png');
     const execPath = process.execPath;
+    const mainJsPath = path.join(__dirname, 'main.js');
 
     const content = `[Desktop Entry]
 Name=Scarlet Base
-Exec="${execPath}" /home/leumas-nedlog/dev/side_projects/scarletbase/dist-electron/main.js %U
+Exec="${execPath}" "${mainJsPath}" %U
 Icon=${iconPath}
 Type=Application
 Terminal=false
