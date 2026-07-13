@@ -25,6 +25,41 @@ if (fs.existsSync(oldDbPath) && !fs.existsSync(dbPath)) {
   }
 }
 
+// Génération automatique du fichier .desktop sous Linux (Wayland / GNOME)
+// Cela permet au Dock (Pop!_OS/GNOME) d'associer le processus "scarlet-base"
+// avec l'icône personnalisée dans build/icon.png en mode dev.
+function createLinuxDesktopFile() {
+  if (process.platform !== 'linux') return;
+  try {
+    const homeDir = os.homedir();
+    const desktopFilePath = path.join(homeDir, '.local/share/applications/scarlet-base.desktop');
+    const iconPath = '/home/leumas-nedlog/dev/side_projects/scarletbase/build/icon.png';
+    const execPath = process.execPath;
+
+    const content = `[Desktop Entry]
+Name=Scarlet Base
+Exec="${execPath}" /home/leumas-nedlog/dev/side_projects/scarletbase/dist-electron/main.js %U
+Icon=${iconPath}
+Type=Application
+Terminal=false
+Categories=Utility;
+StartupWMClass=scarlet-base
+`;
+
+    const dir = path.dirname(desktopFilePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(desktopFilePath, content, 'utf-8');
+    console.log('Wayland desktop file generated at:', desktopFilePath);
+  } catch (e) {
+    console.error('Failed to write .desktop file:', e);
+  }
+}
+
+createLinuxDesktopFile();
+
+
 // IPC Handlers
 ipcMain.handle('db:load', async () => {
   try {
