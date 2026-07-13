@@ -1,5 +1,8 @@
-# Scarlet Base - Windows PowerShell Installer 🤖
 $OutputEncoding = [System.Text.Encoding]::UTF8
+
+# Détection de l'existence d'une session utilisateur interactive
+$HAS_UI = [Environment]::UserInteractive
+
 
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "         Scarlet Base - Assistant d'Installation 🤖       " -ForegroundColor Green
@@ -64,7 +67,12 @@ if (-not $isRepo) {
                 Write-Host "  ✓ Projet déjà à jour." -ForegroundColor Green
             } else {
                 Write-Host "  ⚠ Une mise à jour est disponible sur le dépôt distant." -ForegroundColor Yellow
-                $choice = Read-Host "Voulez-vous télécharger et installer la dernière mise à jour ? (O/N)"
+                if ($HAS_UI) {
+                    $choice = Read-Host "Voulez-vous télécharger et installer la dernière mise à jour ? (O/N)"
+                } else {
+                    Write-Host "  [info] Environnement sans interface utilisateur interactive. Passage automatique."
+                    $choice = "N"
+                }
                 if ($choice -match '^[OoYy]') {
                     Write-Host "Mise à jour du projet..."
                     git pull --ff-only
@@ -95,7 +103,11 @@ Write-Host "  ✓ Dépendances installées avec succès." -ForegroundColor Green
 
 # ÉTAPE 4 — Lancement de l'application
 Write-Host ""
-$choiceApp = Read-Host "Voulez-vous lancer l'application en mode développement maintenant ? (O/N)"
+if ($HAS_UI) {
+    $choiceApp = Read-Host "Voulez-vous lancer l'application en mode développement maintenant ? (O/N)"
+} else {
+    $choiceApp = "N"
+}
 if ($choiceApp -match '^[OoYy]') {
     Write-Host "Lancement de Scarlet Base via start.ps1..." -ForegroundColor Green
     ./start.ps1

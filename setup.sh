@@ -9,6 +9,13 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # Reset
 
+# Détection de l'existence d'un terminal interactif (TTY)
+# (Pour éviter de planter dans un environnement headless type Docker/CI sans PTY)
+HAS_TTY=false
+if true 2>/dev/null >/dev/tty; then
+    HAS_TTY=true
+fi
+
 echo -e "${BLUE}==========================================================${NC}"
 echo -e "${GREEN}         Scarlet Base - Assistant d'Installation 🤖       ${NC}"
 echo -e "${BLUE}==========================================================${NC}"
@@ -67,8 +74,13 @@ else
                 echo -e "  ${GREEN}✓ Projet déjà à jour.${NC}"
             else
                 echo -e "  ${YELLOW}⚠ Une mise à jour est disponible sur le dépôt distant.${NC}"
-                read -p "Voulez-vous télécharger et installer la dernière mise à jour ? (O/n) : " -n 1 -r < /dev/tty
-                echo ""
+                if [ "$HAS_TTY" = true ]; then
+                    read -p "Voulez-vous télécharger et installer la dernière mise à jour ? (O/n) : " -n 1 -r < /dev/tty
+                    echo ""
+                else
+                    echo "  [info] Environnement sans terminal interactif détecté. Passage automatique."
+                    REPLY="n"
+                fi
                 if [[ $REPLY =~ ^[OoYy]$ ]] || [[ -z $REPLY ]]; then
                     echo "Mise à jour du projet..."
                     if git pull --ff-only; then
@@ -99,8 +111,12 @@ fi
 
 # ÉTAPE 4 — Lancement de l'application
 echo -e "\n${BLUE}→ Étape 4 : Lancement de l'application...${NC}"
-read -p "Voulez-vous lancer l'application en mode développement maintenant ? (O/n) : " -n 1 -r < /dev/tty
-echo ""
+if [ "$HAS_TTY" = true ]; then
+    read -p "Voulez-vous lancer l'application en mode développement maintenant ? (O/n) : " -n 1 -r < /dev/tty
+    echo ""
+else
+    REPLY="n"
+fi
 if [[ $REPLY =~ ^[OoYy]$ ]] || [[ -z $REPLY ]]; then
     echo -e "${GREEN}Lancement de Scarlet Base via start.sh...${NC}"
     chmod +x start.sh
