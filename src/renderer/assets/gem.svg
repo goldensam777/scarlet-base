@@ -59,26 +59,4 @@
   <!-- Lignes de structure internes pour souligner le relief 3D -->
   <path d="M20 80 L180 80 M60 35 L140 35 M80 60 L120 60 M60 95 L140 95 M100 185 L100 95" fill="none" stroke="white" stroke-opacity="0.15" stroke-width="0.5"/>
 
-  <!-- Étoile animée (Haut à gauche) -->
-  <g transform="translate(55, 45)">
-    <path d="M0 -18 Q2 -2 18 0 Q2 2 0 18 Q-2 2 -18 0 Q-2 -2 0 -18" fill="white" fill-opacity="0.9">
-      <!-- Animation de rotation -->
-      <animateTransform 
-        attributeName="transform" 
-        type="rotate" 
-        from="0 0 0" 
-        to="10 0 0" 
-        dur="1.5s" 
-        repeatCount="indefinite" 
-        additive="sum" />
-      <!-- Animation de pulsation (scale) -->
-      <animateTransform 
-        attributeName="transform" 
-        type="scale" 
-        values="0.8;1.1;0.8" 
-        dur="1.5s" 
-        repeatCount="indefinite" 
-        additive="sum" />
-    </path>
-  </g>
 </svg>
