@@ -28,4 +28,4 @@ linux:
 publish:
   provider: github
   owner: goldensam777
-  repo: taskflow
+  repo: scarlet-base

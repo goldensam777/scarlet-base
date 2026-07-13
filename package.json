@@ -4,7 +4,7 @@
   "main": "dist-electron/main.js",
   "description": "Minimalist agenda and note-taking application (Scarlet Base)",
   "author": "Péniel Gold Sam <goldensam777@leumaslabs.com>",
-  "homepage": "https://github.com/goldensam777/taskflow",
+  "homepage": "https://github.com/goldensam777/scarlet-base",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
