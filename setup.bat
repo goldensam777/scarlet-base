@@ -8,7 +8,7 @@ echo          Scarlet Base - Assistant d'Installation 🤖
 echo ==========================================================
 echo Ce script va preparer le projet sur votre machine :
 echo 1. Verification des outils requis (git, node, npm)
-echo 2. Mise a jour facultative du depot
+echo 2. Recherche de mises a jour via git fetch
 echo 3. Installation des dependances npm
 echo 4. Lancement optionnel de VS Code et de l'application
 echo.
@@ -28,17 +28,36 @@ for %%T in (git node npm) do (
     )
 )
 
-:: ÉTAPE 2 — Mise à jour Git si applicable
+:: ÉTAPE 2 — Recherche de nouvelles versions via git fetch
 echo.
 echo → Etape 2 : Verification des mises a jour...
 if exist ".git" (
-    echo Depot Git detecte. Tentative de pull...
-    git pull --ff-only >nul 2>&1
-    if errorlevel 1 (
-        echo   [warning] Impossible de mettre a jour automatiquement (divergence).
-        echo   On continue avec la version locale actuelle.
+    echo Recherche de nouvelles versions (git fetch)...
+    call git fetch --quiet >nul 2>&1
+    if errorlevel 0 (
+        for /f "tokens=*" %%i in ('git rev-parse HEAD') do set LOCAL=%%i
+        for /f "tokens=*" %%i in ('git rev-parse @{u} 2^>nul') do set REMOTE=%%i
+        if not defined REMOTE set REMOTE=!LOCAL!
+
+        if "!LOCAL!"=="!REMOTE!" (
+            echo   [ok] Projet deja a jour.
+        ) else (
+            echo   [warning] Une mise a jour est disponible sur le depot distant.
+            set /p "UPDATE_ASK=Voulez-vous telecharger et installer la derniere mise a jour ? (O/N) : "
+            if /i "!UPDATE_ASK!"=="o" (
+                echo Mise a jour du projet...
+                call git pull --ff-only
+                if errorlevel 1 (
+                    echo   [warning] Echec de la mise a jour automatique.
+                ) else (
+                    echo   [ok] Projet mis a jour avec succes.
+                )
+            ) else (
+                echo Mise a jour ignoree.
+            )
+        )
     ) else (
-        echo   [ok] Projet a jour.
+        echo   [warning] Impossible de contacter le depot distant (fetch echoue).
     )
 ) else (
     echo Aucun depot Git detecte au dossier courant, passage a la suite.
