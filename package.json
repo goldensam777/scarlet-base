@@ -1,8 +1,8 @@
 {
-  "name": "taskflow",
+  "name": "scarlet-base",
   "version": "1.0.0",
   "main": "dist-electron/main.js",
-  "description": "Minimalist agenda application with Electron and TypeScript",
+  "description": "Minimalist agenda and note-taking application (Scarlet Base)",
   "author": "Péniel Gold Sam <goldensam777@leumaslabs.com>",
   "homepage": "https://github.com/goldensam777/taskflow",
   "scripts": {

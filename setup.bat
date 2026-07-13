@@ -1,7 +1,7 @@
 @echo off
-title TaskFlow - Installation du Projet
+title Scarlet Base - Installation du Projet
 echo ==========================================================
-echo           TaskFlow - Installation du Projet
+echo          Scarlet Base - Installation du Projet
 echo ==========================================================
 
 :: 1. Vérification de Node.js

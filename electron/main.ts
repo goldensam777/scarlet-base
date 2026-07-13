@@ -6,12 +6,23 @@ import os from 'os'
 // Force the French locale to display date and time pickers in DD/MM/YYYY format
 app.commandLine.appendSwitch('lang', 'fr');
 
-const storageDir = path.join(os.homedir(), '.taskflow');
+const oldStorageDir = path.join(os.homedir(), '.taskflow');
+const oldDbPath = path.join(oldStorageDir, 'db.json');
+const storageDir = path.join(os.homedir(), '.scarletbase');
 const dbPath = path.join(storageDir, 'db.json');
 
-// Ensure directory exists
+// Ensure directory exists and perform automatic migration if needed
 if (!fs.existsSync(storageDir)) {
   fs.mkdirSync(storageDir, { recursive: true });
+}
+
+if (fs.existsSync(oldDbPath) && !fs.existsSync(dbPath)) {
+  try {
+    fs.copyFileSync(oldDbPath, dbPath);
+    console.log('Migrated database from .taskflow to .scarletbase successfully.');
+  } catch (e) {
+    console.error('Failed to migrate database from .taskflow:', e);
+  }
 }
 
 // IPC Handlers

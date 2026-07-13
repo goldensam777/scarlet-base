@@ -1,5 +1,5 @@
-appId: com.leumaslabs.taskflow
-productName: TaskFlow
+appId: com.leumaslabs.scarletbase
+productName: Scarlet Base
 directories:
   output: release
 files:

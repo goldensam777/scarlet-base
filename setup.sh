@@ -9,7 +9,7 @@ RED='\033[0;31m'
 NC='\033[0m' # Pas de couleur (Reset)
 
 echo "=========================================================="
-echo "          TaskFlow - Installation du Projet"
+echo "         Scarlet Base - Installation du Projet"
 echo "=========================================================="
 
 # 1. Vérification de Node.js

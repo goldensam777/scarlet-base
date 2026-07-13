@@ -1,6 +1,6 @@
-# TaskFlow
+# Scarlet Base
 
-TaskFlow est un agenda de bureau minimaliste, performant et haut de gamme développé en **TypeScript**, **Electron** et **Vite**. Il combine un calendrier interactif à 3 colonnes avec un gestionnaire de tâches fluide et un moteur de prise de notes de type **Obsidian** (Markdown, fichiers locaux et liaisons bidirectionnelles).
+Scarlet Base est un agenda de bureau minimaliste, performant et haut de gamme développé en **TypeScript**, **Electron** et **Vite**. Il combine un calendrier interactif à 3 colonnes avec un gestionnaire de tâches fluide et un moteur de prise de notes de type **Obsidian** (Markdown, fichiers locaux et liaisons bidirectionnelles).
 
 ---
 
@@ -29,12 +29,12 @@ TaskFlow est un agenda de bureau minimaliste, performant et haut de gamme dével
 
 ## 🛠️ Spécifications Techniques & Entrées/Sorties (I/O)
 
-TaskFlow est conçu avec une séparation claire entre la vue et le système de fichiers (I/O) :
+Scarlet Base est conçu avec une séparation claire entre la vue et le système de fichiers (I/O) :
 
 ### Architecture des Fichiers
-* [src/renderer/main.ts](file:///home/leumas-nedlog/dev/side_projects/taskonbase/src/renderer/main.ts) : Coeur logique du frontend (rendu des vues Calendrier et Listes de tâches).
-* [src/renderer/agenda.notes.ts](file:///home/leumas-nedlog/dev/side_projects/taskonbase/src/renderer/agenda.notes.ts) : Structure de données et abstractions de stockage (LocalStorage / FileSystem).
-* [electron/main.ts](file:///home/leumas-nedlog/dev/side_projects/taskonbase/electron/main.ts) : Initialisation d'Electron avec forçage de la langue en français (`fr`) pour le rendu européen des dates.
+* [src/renderer/main.ts](file:///home/leumas-nedlog/dev/side_projects/scarletbase/src/renderer/main.ts) : Coeur logique du frontend (rendu des vues Calendrier et Listes de tâches).
+* [src/renderer/agenda.notes.ts](file:///home/leumas-nedlog/dev/side_projects/scarletbase/src/renderer/agenda.notes.ts) : Structure de données et abstractions de stockage (LocalStorage / FileSystem).
+* [electron/main.ts](file:///home/leumas-nedlog/dev/side_projects/scarletbase/electron/main.ts) : Initialisation d'Electron avec forçage de la langue en français (`fr`) pour le rendu européen des dates.
 
 ### Gestion des Entrées/Sorties (I/O)
 Pour interfacer les notes avec votre coffre Obsidian, le pont IPC d'Electron utilise les canaux d'I/O suivants (dans `preload.ts` et `main.ts`) :
