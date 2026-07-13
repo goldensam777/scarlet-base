@@ -20,29 +20,21 @@ Scarlet Base est un agenda de bureau minimaliste, performant et haut de gamme d�
 * **Listes de Tâches** : Créez des listes de tâches thématiques, renommez-les inline, ou supprimez-les.
 * **Tâches rapides** : Saisie rapide de tâches au clavier et panneau pliable récapitulant les tâches terminées.
 
-### 4. Module de Notes Obsidian (agenda.notes)
+### 4. Module de Notes (agenda.notes)
 * **Daily Notes** : Système de note quotidienne liée au calendrier de la journée.
 * **Liaisons Bidirectionnelles (I/O Tags)** : Liaison directe des notes aux tâches via des balises de frontmatter YAML.
-* **Fichiers locaux** : Architecture conçue pour se connecter directement à votre dossier physique de notes Obsidian (votre *Vault*).
+* **Stockage Unifié** : Les notes sont enregistrées directement au sein de la base de données de l'application (`db.json`). Le support pour le stockage direct dans un dossier local physique (Obsidian Vault) est structurellement prévu dans le code (`agenda.notes.ts`), mais reste à implémenter.
 
 ---
 
 ## 🛠️ Spécifications Techniques & Entrées/Sorties (I/O)
 
-Scarlet Base est conçu avec une séparation claire entre la vue et le système de fichiers (I/O) :
+Scarlet Base est conçu avec une séparation claire entre la vue et le stockage :
 
 ### Architecture des Fichiers
-* [src/renderer/main.ts](file:///home/leumas-nedlog/dev/side_projects/scarletbase/src/renderer/main.ts) : Coeur logique du frontend (rendu des vues Calendrier et Listes de tâches).
-* [src/renderer/agenda.notes.ts](file:///home/leumas-nedlog/dev/side_projects/scarletbase/src/renderer/agenda.notes.ts) : Structure de données et abstractions de stockage (LocalStorage / FileSystem).
+* [src/renderer/main.ts](file:///home/leumas-nedlog/dev/side_projects/scarletbase/src/renderer/main.ts) : Coeur logique du frontend (rendu des vues Calendrier, Listes de tâches, et Notes).
+* [src/renderer/agenda.notes.ts](file:///home/leumas-nedlog/dev/side_projects/scarletbase/src/renderer/agenda.notes.ts) : Structure de données et abstractions de stockage (Moteur LocalStorage/Database).
 * [electron/main.ts](file:///home/leumas-nedlog/dev/side_projects/scarletbase/electron/main.ts) : Initialisation d'Electron avec forçage de la langue en français (`fr`) pour le rendu européen des dates.
-
-### Gestion des Entrées/Sorties (I/O)
-Pour interfacer les notes avec votre coffre Obsidian, le pont IPC d'Electron utilise les canaux d'I/O suivants (dans `preload.ts` et `main.ts`) :
-
-* **`notes:select-directory`** : Ouvre une boîte de dialogue native pour sélectionner le dossier Obsidian.
-* **`notes:read-all`** : Scanne le dossier et extrait les fichiers `.md`.
-* **`notes:write`** : Enregistre le contenu et met à jour les tags de frontmatter YAML.
-* **`notes:delete`** : Supprime physiquement la note Markdown.
 
 #### Structure de Frontmatter (Tags I/O)
 Chaque note Markdown utilise le bloc suivant pour lier les tâches de l'agenda :

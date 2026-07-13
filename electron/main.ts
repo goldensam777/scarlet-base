@@ -63,10 +63,31 @@ createLinuxDesktopFile();
 
 // IPC Handlers
 ipcMain.handle('db:load', async () => {
+  const bakPath = dbPath + '.bak';
   try {
     if (fs.existsSync(dbPath)) {
       const content = fs.readFileSync(dbPath, 'utf-8');
-      return JSON.parse(content);
+      try {
+        return JSON.parse(content);
+      } catch (parseError) {
+        console.error('Failed to parse db.json, attempting backup recovery...', parseError);
+        if (fs.existsSync(bakPath)) {
+          const bakContent = fs.readFileSync(bakPath, 'utf-8');
+          const parsedBak = JSON.parse(bakContent);
+          // Restore db.json from backup
+          fs.writeFileSync(dbPath, bakContent, 'utf-8');
+          console.log('Successfully recovered database from backup file.');
+          return parsedBak;
+        }
+        throw parseError; // Re-throw if no backup is available
+      }
+    } else if (fs.existsSync(bakPath)) {
+      // If db.json is missing but bak exists
+      const bakContent = fs.readFileSync(bakPath, 'utf-8');
+      const parsedBak = JSON.parse(bakContent);
+      fs.writeFileSync(dbPath, bakContent, 'utf-8');
+      console.log('Successfully restored db.json from backup.');
+      return parsedBak;
     }
   } catch (e) {
     console.error('Failed to load database file', e);
@@ -75,6 +96,8 @@ ipcMain.handle('db:load', async () => {
 });
 
 ipcMain.handle('db:save', async (_, data: any) => {
+  const tmpPath = dbPath + '.tmp';
+  const bakPath = dbPath + '.bak';
   try {
     let existingData = {};
     if (fs.existsSync(dbPath)) {
@@ -82,14 +105,42 @@ ipcMain.handle('db:save', async (_, data: any) => {
         const content = fs.readFileSync(dbPath, 'utf-8');
         existingData = JSON.parse(content);
       } catch (err) {
-        // ignore parsing errors
+        console.warn('Existing db.json invalid, attempting to read backup...', err);
+        if (fs.existsSync(bakPath)) {
+          try {
+            const bakContent = fs.readFileSync(bakPath, 'utf-8');
+            existingData = JSON.parse(bakContent);
+          } catch (bakErr) {
+            console.error('Backup db.bak is also invalid!', bakErr);
+          }
+        }
       }
     }
+
     const mergedData = { ...existingData, ...data };
-    fs.writeFileSync(dbPath, JSON.stringify(mergedData, null, 2), 'utf-8');
+    const jsonString = JSON.stringify(mergedData, null, 2);
+
+    // Create backup of current db.json before writing if it exists and is valid
+    if (fs.existsSync(dbPath)) {
+      try {
+        fs.copyFileSync(dbPath, bakPath);
+      } catch (copyErr) {
+        console.error('Failed to create backup:', copyErr);
+      }
+    }
+
+    // Write atomically via temp file
+    fs.writeFileSync(tmpPath, jsonString, 'utf-8');
+    fs.renameSync(tmpPath, dbPath);
+
     return true;
   } catch (e) {
     console.error('Failed to save database file', e);
+    if (fs.existsSync(tmpPath)) {
+      try {
+        fs.unlinkSync(tmpPath);
+      } catch {}
+    }
     return false;
   }
 });
