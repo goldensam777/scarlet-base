@@ -60,7 +60,7 @@ if (-not $isRepo) {
         git fetch --quiet 2>$null
         if ($LASTEXITCODE -eq 0) {
             $LOCAL = (git rev-parse HEAD)
-            $REMOTE = (git rev-parse @{u} 2>$null)
+            $REMOTE = (git rev-parse '@{u}' 2>$null)
             if ($null -eq $REMOTE) { $REMOTE = $LOCAL }
 
             if ($LOCAL -eq $REMOTE) {
