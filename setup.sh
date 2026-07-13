@@ -14,7 +14,7 @@ echo -e "${GREEN}         Scarlet Base - Assistant d'Installation 🤖       ${N
 echo -e "${BLUE}==========================================================${NC}"
 echo "Ce script va préparer le projet sur votre machine :"
 echo "1. Vérification des outils requis (git, node, npm)"
-echo "2. Recherche de mises à jour via git fetch"
+echo "2. Vérification et clonage éventuel du projet"
 echo "3. Installation des dépendances npm"
 echo "4. Lancement optionnel de VS Code et de l'application"
 echo ""
@@ -36,39 +36,56 @@ check_tool "git"  "https://git-scm.com"
 check_tool "node" "https://nodejs.org"
 check_tool "npm"  "https://nodejs.org"
 
-# ÉTAPE 2 — Recherche de nouvelles versions via git fetch
-echo -e "\n${BLUE}→ Étape 2 : Vérification des mises à jour...${NC}"
-if [ -d ".git" ]; then
-    echo "Recherche de nouvelles versions (git fetch)..."
-    if git fetch --quiet 2>/dev/null; then
-        LOCAL=$(git rev-parse HEAD)
-        # Tente de récupérer la branche distante suivie, sinon utilise la locale par défaut
-        REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "$LOCAL")
-        
-        if [ "$LOCAL" = "$REMOTE" ]; then
-            echo -e "  ${GREEN}✓ Projet déjà à jour.${NC}"
-        else
-            echo -e "  ${YELLOW}⚠ Une mise à jour est disponible sur le dépôt distant.${NC}"
-            read -p "Voulez-vous télécharger et installer la dernière mise à jour ? (O/n) : " -n 1 -r
-            echo ""
-            if [[ $REPLY =~ ^[OoYy]$ ]] || [[ -z $REPLY ]]; then
-                echo "Mise à jour du projet..."
-                if git pull --ff-only; then
-                    echo -e "  ${GREEN}✓ Projet mis à jour avec succès.${NC}"
-                else
-                    echo -e "  ${RED}❌ Échec de la mise à jour automatique.${NC}"
-                    echo "  On continue avec la version locale actuelle."
-                fi
-            else
-                echo "Mise à jour ignorée."
-            fi
-        fi
+# ÉTAPE 2 — Vérification et clonage éventuel du projet
+echo -e "\n${BLUE}→ Étape 2 : Vérification du dépôt...${NC}"
+
+IS_REPO=false
+if [ -f "package.json" ]; then
+    if grep -q '"name": "scarlet-base"' package.json; then
+        IS_REPO=true
+    fi
+fi
+
+if [ "$IS_REPO" = false ]; then
+    echo "Dépôt Scarlet Base non détecté au dossier courant."
+    echo "Clonage du dépôt de production dans le dossier './scarlet-base'..."
+    if git clone https://github.com/goldensam777/scarlet-base.git; then
+        cd scarlet-base
     else
-        echo -e "  ${YELLOW}⚠ Impossible de contacter le dépôt distant (fetch échoué).${NC}"
-        echo "  On continue avec la version locale actuelle."
+        echo -e "${RED}❌ Échec du clonage du dépôt.${NC}"
+        exit 1
     fi
 else
-    echo "Aucun dépôt Git détecté au dossier courant, passage à l'étape suivante."
+    echo -e "  ${GREEN}✓ Projet déjà présent localement.${NC}"
+    if [ -d ".git" ]; then
+        echo "Recherche de nouvelles versions (git fetch)..."
+        if git fetch --quiet 2>/dev/null; then
+            LOCAL=$(git rev-parse HEAD)
+            REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "$LOCAL")
+            
+            if [ "$LOCAL" = "$REMOTE" ]; then
+                echo -e "  ${GREEN}✓ Projet déjà à jour.${NC}"
+            else
+                echo -e "  ${YELLOW}⚠ Une mise à jour est disponible sur le dépôt distant.${NC}"
+                read -p "Voulez-vous télécharger et installer la dernière mise à jour ? (O/n) : " -n 1 -r
+                echo ""
+                if [[ $REPLY =~ ^[OoYy]$ ]] || [[ -z $REPLY ]]; then
+                    echo "Mise à jour du projet..."
+                    if git pull --ff-only; then
+                        echo -e "  ${GREEN}✓ Projet mis à jour avec succès.${NC}"
+                    else
+                        echo -e "  ${RED}❌ Échec de la mise à jour automatique.${NC}"
+                        echo "  On continue avec la version locale actuelle."
+                    fi
+                else
+                    echo "Mise à jour ignorée."
+                fi
+            fi
+        else
+            echo -e "  ${YELLOW}⚠ Impossible de contacter le dépôt distant (fetch échoué).${NC}"
+            echo "  On continue avec la version locale actuelle."
+        fi
+    fi
 fi
 
 # ÉTAPE 3 — npm install

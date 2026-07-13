@@ -6,7 +6,7 @@ Write-Host "         Scarlet Base - Assistant d'Installation 🤖       " -Foreg
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "Ce script va préparer le projet sur votre machine :"
 Write-Host "1. Vérification des outils requis (git, node, npm)"
-Write-Host "2. Recherche de mises à jour via git fetch"
+Write-Host "2. Vérification et clonage éventuel du projet"
 Write-Host "3. Installation des dépendances npm"
 Write-Host "4. Lancement optionnel de VS Code et de l'application"
 Write-Host ""
@@ -29,39 +29,58 @@ Check-Tool "git" "https://git-scm.com"
 Check-Tool "node" "https://nodejs.org"
 Check-Tool "npm" "https://nodejs.org"
 
-# ÉTAPE 2 — Recherche de nouvelles versions via git fetch
+# ÉTAPE 2 — Vérification et clonage éventuel du projet
 Write-Host ""
-Write-Host "→ Étape 2 : Vérification des mises à jour..." -ForegroundColor Cyan
-if (Test-Path ".git") {
-    Write-Host "Dépôt Git détecté. Recherche de nouvelles versions..."
-    git fetch --quiet 2>$null
-    if ($LASTEXITCODE -eq 0) {
-        $LOCAL = (git rev-parse HEAD)
-        $REMOTE = (git rev-parse @{u} 2>$null)
-        if ($null -eq $REMOTE) { $REMOTE = $LOCAL }
+Write-Host "→ Étape 2 : Vérification du dépôt..." -ForegroundColor Cyan
 
-        if ($LOCAL -eq $REMOTE) {
-            Write-Host "  ✓ Projet déjà à jour." -ForegroundColor Green
-        } else {
-            Write-Host "  ⚠ Une mise à jour est disponible sur le dépôt distant." -ForegroundColor Yellow
-            $choice = Read-Host "Voulez-vous télécharger et installer la dernière mise à jour ? (O/N)"
-            if ($choice -match '^[OoYy]') {
-                Write-Host "Mise à jour du projet..."
-                git pull --ff-only
-                if ($LASTEXITCODE -eq 0) {
-                    Write-Host "  ✓ Projet mis à jour avec succès." -ForegroundColor Green
-                } else {
-                    Write-Host "  ❌ Échec de la mise à jour automatique. On continue en l'état." -ForegroundColor Red
-                }
-            } else {
-                Write-Host "Mise à jour ignorée."
-            }
-        }
-    } else {
-        Write-Host "  ⚠ Impossible de contacter le dépôt distant (fetch échoué)." -ForegroundColor Yellow
+$isRepo = $false
+if (Test-Path "package.json") {
+    $pkg = Get-Content "package.json" -Raw | ConvertFrom-Json -ErrorAction SilentlyContinue
+    if ($null -ne $pkg -and $pkg.name -eq "scarlet-base") {
+        $isRepo = $true
     }
+}
+
+if (-not $isRepo) {
+    Write-Host "Dépôt Scarlet Base non détecté dans le dossier actuel."
+    Write-Host "Clonage du projet dans le sous-dossier './scarlet-base'..."
+    git clone https://github.com/goldensam777/scarlet-base.git
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "❌ Échec du clonage du projet." -ForegroundColor Red
+        Exit 1
+    }
+    Set-Location "scarlet-base"
 } else {
-    Write-Host "Aucun dépôt Git détecté au dossier courant, passage à l'étape suivante."
+    Write-Host "  ✓ Projet déjà présent localement." -ForegroundColor Green
+    if (Test-Path ".git") {
+        Write-Host "Recherche de nouvelles versions..."
+        git fetch --quiet 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            $LOCAL = (git rev-parse HEAD)
+            $REMOTE = (git rev-parse @{u} 2>$null)
+            if ($null -eq $REMOTE) { $REMOTE = $LOCAL }
+
+            if ($LOCAL -eq $REMOTE) {
+                Write-Host "  ✓ Projet déjà à jour." -ForegroundColor Green
+            } else {
+                Write-Host "  ⚠ Une mise à jour est disponible sur le dépôt distant." -ForegroundColor Yellow
+                $choice = Read-Host "Voulez-vous télécharger et installer la dernière mise à jour ? (O/N)"
+                if ($choice -match '^[OoYy]') {
+                    Write-Host "Mise à jour du projet..."
+                    git pull --ff-only
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "  ✓ Projet mis à jour avec succès." -ForegroundColor Green
+                    } else {
+                        Write-Host "  ❌ Échec de la mise à jour automatique. On continue en l'état." -ForegroundColor Red
+                    }
+                } else {
+                    Write-Host "Mise à jour ignorée."
+                }
+            }
+        } else {
+            Write-Host "  ⚠ Impossible de contacter le dépôt distant (fetch échoué)." -ForegroundColor Yellow
+        }
+    }
 }
 
 # ÉTAPE 3 — npm install
