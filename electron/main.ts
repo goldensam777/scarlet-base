@@ -64,6 +64,7 @@ function createWindow() {
     height: 800,
     minWidth: 1024,
     minHeight: 700,
+    icon: path.join(__dirname, '../build/icon.png'),
     frame: false,
     transparent: true,          // laisse voir le bureau autour des coins arrondis
     backgroundColor: '#00000000', // fond totalement transparent (format hex8)
