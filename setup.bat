@@ -8,7 +8,7 @@ echo          Scarlet Base - Assistant d'Installation 🤖
 echo ==========================================================
 echo Ce script va preparer le projet sur votre machine :
 echo 1. Verification des outils requis (git, node, npm)
-echo 2. Recherche de mises a jour via git fetch
+echo 2. Verification et clonage eventuel du projet
 echo 3. Installation des dependances npm
 echo 4. Lancement optionnel de l'application via start.bat
 echo.
@@ -28,39 +28,59 @@ for %%T in (git node npm) do (
     )
 )
 
-:: ÉTAPE 2 — Recherche de nouvelles versions via git fetch
+:: ÉTAPE 2 — Vérification et clonage éventuel du projet
 echo.
-echo → Etape 2 : Verification des mises a jour...
-if exist ".git" (
-    echo Recherche de nouvelles versions (git fetch)...
-    call git fetch --quiet >nul 2>&1
-    if errorlevel 0 (
-        for /f "tokens=*" %%i in ('git rev-parse HEAD') do set LOCAL=%%i
-        for /f "tokens=*" %%i in ('git rev-parse @{u} 2^>nul') do set REMOTE=%%i
-        if not defined REMOTE set REMOTE=!LOCAL!
+echo → Etape 2 : Verification du depot...
 
-        if "!LOCAL!"=="!REMOTE!" (
-            echo   [ok] Projet deja a jour.
-        ) else (
-            echo   [warning] Une mise a jour est disponible sur le depot distant.
-            set /p "UPDATE_ASK=Voulez-vous telecharger et installer la derniere mise a jour ? (O/N) : "
-            if /i "!UPDATE_ASK!"=="o" (
-                echo Mise a jour du projet...
-                call git pull --ff-only
-                if errorlevel 1 (
-                    echo   [warning] Echec de la mise a jour automatique.
-                ) else (
-                    echo   [ok] Projet mis a jour avec succes.
-                )
-            ) else (
-                echo Mise a jour ignoree.
-            )
-        )
-    ) else (
-        echo   [warning] Impossible de contacter le depot distant (fetch echoue).
+set "IS_REPO=false"
+if exist "package.json" (
+    findstr /c:"\"name\": \"scarlet-base\"" package.json >nul 2>&1
+    if !errorlevel! equ 0 (
+        set "IS_REPO=true"
     )
+)
+
+if "!IS_REPO!"=="false" (
+    echo Depot Scarlet Base non detecte au dossier courant.
+    echo Clonage du depot de production dans le dossier './scarlet-base'...
+    call git clone https://github.com/goldensam777/scarlet-base.git
+    if !errorlevel! neq 0 (
+        echo [erreur] Echec du clonage du depot.
+        pause
+        exit /b 1
+    )
+    cd scarlet-base
 ) else (
-    echo Aucun depot Git detecte au dossier courant, passage a la suite.
+    echo   [ok] Projet deja present localement.
+    if exist ".git" (
+        echo Recherche de nouvelles versions (git fetch)...
+        call git fetch --quiet >nul 2>&1
+        if !errorlevel! equ 0 (
+            for /f "tokens=*" %%i in ('git rev-parse HEAD') do set LOCAL=%%i
+            for /f "tokens=*" %%i in ('git rev-parse @{u} 2^>nul') do set REMOTE=%%i
+            if not defined REMOTE set REMOTE=!LOCAL!
+
+            if "!LOCAL!"=="!REMOTE!" (
+                echo   [ok] Projet deja a jour.
+            ) else (
+                echo   [warning] Une mise a jour est disponible sur le depot distant.
+                set /p "UPDATE_ASK=Voulez-vous telecharger et installer la derniere mise a jour ? (O/N) : "
+                if /i "!UPDATE_ASK!"=="o" (
+                    echo Mise a jour du projet...
+                    call git pull --ff-only
+                    if errorlevel 1 (
+                        echo   [warning] Echec de la mise a jour automatique.
+                    ) else (
+                        echo   [ok] Projet mis a jour avec succes.
+                    )
+                ) else (
+                    echo Mise a jour ignoree.
+                )
+            )
+        ) else (
+            echo   [warning] Impossible de contacter le depot distant (fetch echoue).
+        )
+    )
 )
 
 :: ÉTAPE 3 — npm install
