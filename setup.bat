@@ -53,18 +53,18 @@ if "!IS_REPO!"=="false" (
 ) else (
     echo   [ok] Projet deja present localement.
     if exist ".git" (
-        echo Recherche de nouvelles versions (git fetch)...
+        echo Recherche de nouvelles versions [git fetch]...
         call git fetch --quiet >nul 2>&1
         if !errorlevel! equ 0 (
-            for /f "tokens=*" %%i in ('git rev-parse HEAD') do set LOCAL=%%i
-            for /f "tokens=*" %%i in ('git rev-parse @{u} 2^>nul') do set REMOTE=%%i
+            for /f "tokens=*" %%i in ('git rev-parse HEAD^') do set LOCAL=%%i
+            for /f "tokens=*" %%i in ('git rev-parse @{u} 2^>nul^') do set REMOTE=%%i
             if not defined REMOTE set REMOTE=!LOCAL!
 
             if "!LOCAL!"=="!REMOTE!" (
                 echo   [ok] Projet deja a jour.
             ) else (
                 echo   [warning] Une mise a jour est disponible sur le depot distant.
-                set /p "UPDATE_ASK=Voulez-vous telecharger et installer la derniere mise a jour ? (O/N) : "
+                set /p "UPDATE_ASK=Voulez-vous telecharger et installer la derniere mise a jour ? [O/N] : "
                 if /i "!UPDATE_ASK!"=="o" (
                     echo Mise a jour du projet...
                     call git pull --ff-only
@@ -78,7 +78,7 @@ if "!IS_REPO!"=="false" (
                 )
             )
         ) else (
-            echo   [warning] Impossible de contacter le depot distant (fetch echoue).
+            echo   [warning] Impossible de contacter le depot distant [fetch echoue].
         )
     )
 )
@@ -93,6 +93,16 @@ if errorlevel 1 (
     exit /b 1
 )
 echo   [ok] Dependances installees avec succes.
+
+:: ÉTAPE HORS-SÉRIE — Raccourci Bureau Windows
+echo.
+echo → Etape supplementaire : Creation du raccourci sur le Bureau...
+powershell -NoProfile -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut([System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'Scarlet Base.lnk')); $Shortcut.TargetPath = '%~dp0start.bat'; $Shortcut.WorkingDirectory = '%~dp0'; $Shortcut.Description = 'Lancer Scarlet Base'; $Shortcut.Save()" >nul 2>&1
+if errorlevel 1 (
+    echo   [warning] Impossible de creer le raccourci sur le Bureau.
+) else (
+    echo   [ok] Raccourci cree sur le Bureau avec succes.
+)
 
 :: ÉTAPE 4 — Lancement de l'application
 echo.

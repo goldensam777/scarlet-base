@@ -109,6 +109,38 @@ else
     exit 1
 fi
 
+# ÉTAPE HORS-SÉRIE — Raccourci .desktop (Linux)
+echo -e "\n${BLUE}→ Étape supplémentaire : Création du raccourci de bureau (Linux .desktop)...${NC}"
+PROJECT_DIR="$(pwd)"
+DESKTOP_DIR="$HOME/.local/share/applications"
+mkdir -p "$DESKTOP_DIR"
+
+cat <<EOF > "$DESKTOP_DIR/scarlet-base.desktop"
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Scarlet Base
+Comment=Agenda & Notes (TypeScript/Electron/Vite)
+Exec=$PROJECT_DIR/start.sh
+Icon=$PROJECT_DIR/build/icon.png
+Terminal=true
+Categories=Office;Utility;
+EOF
+
+chmod +x "$DESKTOP_DIR/scarlet-base.desktop"
+echo -e "  ${GREEN}✓ Raccourci .desktop créé dans $DESKTOP_DIR/scarlet-base.desktop${NC}"
+
+# Si le dossier Desktop/Bureau existe, copier également dessus
+if [ -d "$HOME/Desktop" ]; then
+    cp "$DESKTOP_DIR/scarlet-base.desktop" "$HOME/Desktop/"
+    chmod +x "$HOME/Desktop/scarlet-base.desktop"
+    echo -e "  ${GREEN}✓ Raccourci .desktop copié sur le Bureau (Desktop)${NC}"
+elif [ -d "$HOME/Bureau" ]; then
+    cp "$DESKTOP_DIR/scarlet-base.desktop" "$HOME/Bureau/"
+    chmod +x "$HOME/Bureau/scarlet-base.desktop"
+    echo -e "  ${GREEN}✓ Raccourci .desktop copié sur le Bureau (Bureau)${NC}"
+fi
+
 # ÉTAPE 4 — Lancement de l'application
 echo -e "\n${BLUE}→ Étape 4 : Lancement de l'application...${NC}"
 if [ "$HAS_TTY" = true ]; then

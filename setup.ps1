@@ -101,6 +101,23 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host "  ✓ Dépendances installées avec succès." -ForegroundColor Green
 
+# ÉTAPE HORS-SÉRIE — Raccourci Bureau Windows
+Write-Host ""
+Write-Host "→ Étape supplémentaire : Création du raccourci sur le Bureau..." -ForegroundColor Cyan
+try {
+    $currentDir = (Get-Location).Path
+    $desktopPath = [System.IO.Path]::Combine([Environment]::GetFolderPath("Desktop"), "Scarlet Base.lnk")
+    $WshShell = New-Object -ComObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut($desktopPath)
+    $Shortcut.TargetPath = Join-Path $currentDir "start.bat"
+    $Shortcut.WorkingDirectory = $currentDir
+    $Shortcut.Description = "Lancer Scarlet Base"
+    $Shortcut.Save()
+    Write-Host "  ✓ Raccourci créé sur le Bureau Windows." -ForegroundColor Green
+} catch {
+    Write-Host "  ⚠ Impossible de créer le raccourci sur le Bureau." -ForegroundColor Yellow
+}
+
 # ÉTAPE 4 — Lancement de l'application
 Write-Host ""
 if ($HAS_UI) {
