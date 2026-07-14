@@ -1024,13 +1024,14 @@ a {
    Grille de Téléchargements
    ========================================================================== */
 .downloads-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  justify-content: space-between;
   gap: 32px;
   margin-top: 40px;
 }
 
 .download-card {
+  flex: 1;
   background: var(--bg-panel);
   border: 1px solid var(--bg-panel-border);
   border-radius: 16px;
@@ -1220,6 +1221,6 @@ a {
   }
   
   .downloads-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
 }
