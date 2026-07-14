@@ -20,7 +20,7 @@
   --text-secondary: #9aa4b7;
   --text-muted: #626e85;
   
-  --shadow-premium: 0 20px 40px rgba(0, 0, 0, 0.4);
+  --shadow-premium: 0 20px 40px rgba(0, 0, 0, 0.5);
 }
 
 /* Reset de base */
@@ -44,9 +44,7 @@ a {
   text-decoration: none;
 }
 
-/* ==========================================================================
-   Structure & Alignement
-   ========================================================================== */
+/* Structure & Alignement */
 .header-container,
 .hero-container,
 .section-container,
@@ -129,8 +127,8 @@ a {
   border: 1px solid var(--bg-panel-border);
   padding: 8px 16px;
   border-radius: 20px;
-  font-size: 14px !important;
-  transition: background 0.2s, border-color 0.2s !important;
+  font-size: 14px;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .github-link:hover {
@@ -294,9 +292,20 @@ a {
 
 .platform-icons {
   display: flex;
-  gap: 20px;
+  gap: 24px;
+}
+
+.platform {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
+  font-weight: 500;
   color: var(--text-secondary);
+}
+
+.platform svg {
+  opacity: 0.8;
 }
 
 /* Visuel Hero Gem */
@@ -396,163 +405,303 @@ a {
 }
 
 /* ==========================================================================
-   Maquette Interactive
+   Maquette Interactive - Thèmes Rels
    ========================================================================== */
 .app-mockup {
-  background-color: #0b0f17;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: var(--shadow-premium);
-  overflow: hidden;
+  --bg: #0a0a0a;
+  --bg-sidebar: #0e0e0e;
+  --bg-card: rgba(22, 22, 22, 0.6);
+  --border: #1e1e1e;
+  --text: #e8e8e8;
+  --muted: #6b6b6b;
+  --accent: #e0a458;
+  --accent-soft: rgba(224, 164, 88, 0.12);
+  
   max-width: 1000px;
   margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-premium);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
 }
 
-/* Titlebar */
-.mockup-titlebar {
-  background-color: #080a0f;
-  height: 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+/* Thèmes réels mappés sur les variables du projet */
+.app-mockup.theme-orange-terminal {
+  --bg: #0a0a0a;
+  --bg-sidebar: #0e0e0e;
+  --bg-card: rgba(22, 22, 22, 0.6);
+  --border: #1e1e1e;
+  --text: #e8e8e8;
+  --muted: #6b6b6b;
+  --accent: #e0a458;
+  --accent-soft: rgba(224, 164, 88, 0.12);
 }
 
-.mockup-logo {
+.app-mockup.theme-azure {
+  --bg: #0a0e13;
+  --bg-sidebar: #0d1117;
+  --bg-card: rgba(15, 20, 25, 0.6);
+  --border: #1d2633;
+  --text: #e1e8f0;
+  --muted: #7a8599;
+  --accent: #6ba3e0;
+  --accent-soft: rgba(107, 163, 224, 0.12);
+}
+
+.app-mockup.theme-espresso {
+  --bg: #0d0c0b;
+  --bg-sidebar: #131210;
+  --bg-card: rgba(26, 24, 22, 0.6);
+  --border: #26221f;
+  --text: #eadecc;
+  --muted: #857567;
+  --accent: #c18c5d;
+  --accent-soft: rgba(193, 140, 93, 0.12);
+}
+
+.app-mockup.theme-cobalt {
+  --bg: #080c14;
+  --bg-sidebar: #0c121e;
+  --bg-card: rgba(18, 26, 42, 0.6);
+  --border: #1f2c45;
+  --text: #e2e8f5;
+  --muted: #7283a0;
+  --accent: #5c85d6;
+  --accent-soft: rgba(92, 133, 214, 0.12);
+}
+
+/* Shell DOM Structure */
+.app-shell {
+  background-color: var(--bg);
+  color: var(--text);
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  position: relative;
+  font-size: 14px;
+}
+
+/* Cluster Contrôles Fenêtres */
+.window-controls {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  display: flex;
   gap: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
+  z-index: 10;
 }
 
-.mockup-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ctrl-sub {
+.win-ctrl {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.15);
-  transition: width 0.2s, opacity 0.2s;
   cursor: pointer;
+  display: block;
 }
 
-.ctrl-close {
-  font-size: 10px;
-  width: 22px;
-  height: 22px;
+.win-ctrl-sub {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.win-ctrl--close {
   background-color: rgba(255, 69, 58, 0.15);
   color: #ff453a;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  font-size: 8px;
+  line-height: 12px;
+  text-align: center;
+  font-weight: bold;
 }
 
-.ctrl-close:hover {
-  background-color: rgba(255, 69, 58, 0.3);
+/* Layout Content Grid */
+#app-content {
+  width: 100%;
 }
 
-/* App Body grid layout */
-.mockup-body {
+.app-container {
   display: grid;
-  grid-template-columns: 200px 1fr 240px;
-  height: 520px;
+  grid-template-columns: 210px 1fr 240px;
+  height: 540px;
 }
 
-/* Sidebar */
-.mockup-sidebar {
-  background-color: #07090c;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 20px 16px;
+/* 1. LEFT SIDEBAR */
+.sidebar-left {
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
-.sidebar-header {
+.brand {
   margin-bottom: 24px;
 }
 
-.sidebar-header .logo-text {
+.brand .logo-text {
   font-size: 16px;
+  font-weight: 700;
 }
 
-.mockup-nav-item {
-  padding: 10px 12px;
+.brand .logo-text .dot {
+  color: var(--accent);
+}
+
+/* Create Button */
+.create-btn {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  color: var(--accent);
   border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  cursor: pointer;
-  margin-bottom: 6px;
-  transition: all 0.2s;
-}
-
-.mockup-nav-item:hover, .mockup-nav-item.active {
-  background-color: rgba(255, 255, 255, 0.04);
-  color: var(--text-primary);
-}
-
-.sidebar-section-title {
-  font-size: 10px;
+  padding: 10px;
   font-weight: 600;
-  color: var(--text-muted);
-  margin: 20px 12px 10px 12px;
-  letter-spacing: 0.5px;
-}
-
-.mockup-agenda-item {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 8px 12px;
-  font-size: 13px;
   cursor: pointer;
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  transition: opacity 0.2s;
+  margin-bottom: 24px;
+}
+
+.create-btn:hover {
+  opacity: 0.85;
+}
+
+.create-icon-mock {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Mini Calendar Widget */
+.mini-calendar-widget {
+  margin-bottom: 24px;
+}
+
+.mini-cal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.mini-cal-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.mini-cal-arrows {
+  display: flex;
+  gap: 4px;
+}
+
+.mini-cal-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 8px;
+  padding: 2px 4px;
+}
+
+.mini-cal-grid-head {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.mini-cal-grid-body {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 10px;
+  row-gap: 6px;
+  color: var(--text);
+}
+
+.mini-cal-grid-body span {
+  cursor: pointer;
+  padding: 2px 0;
+  border-radius: 4px;
+}
+
+.mini-cal-grid-body span:hover {
+  background-color: var(--accent-soft);
+}
+
+.mini-cal-grid-body .other-month {
+  color: var(--muted);
+  opacity: 0.4;
+}
+
+.mini-cal-grid-body .today-selected {
+  background-color: var(--accent);
+  color: var(--bg);
+  font-weight: bold;
+}
+
+/* Category Filters Widget */
+.filters-widget {
+  margin-bottom: 24px;
+}
+
+.widget-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.filters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text);
+  padding: 6px 8px;
   border-radius: 6px;
-  color: var(--text-secondary);
+  cursor: pointer;
 }
 
-.mockup-agenda-item:hover {
-  background-color: rgba(255, 255, 255, 0.02);
-  color: var(--text-primary);
+.filter-item:hover {
+  background-color: var(--accent-soft);
 }
 
-.bullet {
+.filter-item .bullet {
   width: 8px;
   height: 8px;
   border-radius: 50%;
 }
-.bullet.perso { background-color: #007aff; }
-.bullet.travail { background-color: #30d158; }
-.bullet.important { background-color: #ff453a; }
 
-.theme-select-container {
+/* Theme Widget */
+.theme-widget {
   margin-top: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 12px;
 }
 
-.theme-select-container label {
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.5px;
-}
-
-.mockup-select {
-  background-color: #121620;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-primary);
+.theme-selector {
+  background-color: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  color: var(--text);
   border-radius: 6px;
   padding: 6px;
   font-size: 12px;
@@ -560,74 +709,93 @@ a {
   outline: none;
 }
 
-/* Agenda View */
-.mockup-content {
-  background-color: #0b0f17;
-  padding: 24px;
+/* 2. CENTER MAIN CALENDAR AREA */
+.main-calendar-area {
+  background-color: var(--bg);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  padding: 24px;
 }
 
-.content-header {
+.calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
 }
 
-.date-navigator {
+.header-nav-group {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
-.current-date {
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.mockup-btn {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  color: var(--text-primary);
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.sidebar-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 16px;
   cursor: pointer;
-  font-size: 11px;
 }
 
-.mockup-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+.today-btn {
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
 }
 
-.view-modes {
+.nav-arrow-btn {
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.view-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.view-switch-group {
   display: flex;
-  background-color: #07090c;
+  background-color: var(--bg-sidebar);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-.view-tab {
+.view-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
   padding: 6px 14px;
-  border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
+  border-radius: 6px;
   cursor: pointer;
-  color: var(--text-secondary);
+  font-family: var(--font-sans);
 }
 
-.view-tab.active {
-  background-color: rgba(255, 255, 255, 0.06);
-  color: var(--text-primary);
+.view-btn.active {
+  background-color: var(--border);
+  color: var(--accent);
 }
 
-/* Grid Slots */
+/* Calendar Viewport (Schedule grid) */
+.calendar-viewport {
+  flex: 1;
+  overflow-y: auto;
+}
+
 .time-grid {
   display: flex;
   flex-direction: column;
@@ -638,70 +806,108 @@ a {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--border);
 }
 
 .time-label {
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--muted);
   width: 45px;
 }
 
-.event {
+.event-bar {
   flex: 1;
   padding: 10px 16px;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
 }
 
 .empty-event {
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px dashed rgba(255, 255, 255, 0.06);
-  color: var(--text-muted);
+  border: 1px dashed var(--border);
+  color: var(--muted);
   font-style: italic;
   cursor: pointer;
 }
 
-.empty-event:hover {
-  background: rgba(255, 255, 255, 0.02);
-  border-color: rgba(255, 255, 255, 0.15);
+.event-travail {
+  background-color: rgba(48, 209, 88, 0.12);
+  border-left: 3px solid #30d158;
+  color: #30d158;
 }
 
-/* Task Panel */
-.mockup-tasks {
-  background-color: #080b0f;
-  border-left: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 20px 16px;
+.event-perso {
+  background-color: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+  color: var(--accent);
+}
+
+.event-important {
+  background-color: rgba(255, 69, 58, 0.12);
+  border-left: 3.5px solid #ff453a;
+  color: #ff453a;
+}
+
+/* 3. RIGHT SIDEBAR (Tasks Panel) */
+.sidebar-right {
+  background-color: var(--bg-sidebar);
+  border-left: 1px solid var(--border);
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
-.tasks-header {
+.tasks-panel-header {
+  margin-bottom: 16px;
+}
+
+.tasks-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tasks-title-group h3 {
   font-size: 14px;
   font-weight: 600;
-  margin-bottom: 16px;
+}
+
+.check-icon-mock {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.dropdown-trigger {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .task-input-wrapper {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
-.mockup-input {
-  background-color: #121620;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
+.task-input-mock {
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
   padding: 8px 12px;
-  color: var(--text-primary);
+  color: var(--text);
   width: 100%;
-  font-size: 13px;
+  font-size: 12px;
   outline: none;
-}
-
-.mockup-input:focus {
-  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .task-list {
@@ -710,69 +916,21 @@ a {
   gap: 12px;
 }
 
-.mockup-task {
+.task-item-mock {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 12px;
+  font-size: 13px;
+  color: var(--text);
 }
 
-.mockup-task input[type="checkbox"] {
-  accent-color: var(--accent-scarlet);
-  width: 14px;
-  height: 14px;
+.task-item-mock input[type="checkbox"] {
+  accent-color: var(--accent);
 }
 
-.mockup-task span {
-  color: var(--text-secondary);
-}
-
-.mockup-task input[type="checkbox"]:checked + span {
+.task-item-mock span.completed {
   text-decoration: line-through;
-  color: var(--text-muted);
-}
-
-/* Mockup Theme Variations */
-/* 1. Scarlet Theme (Default) */
-.app-mockup.theme-scarlet {
-  --accent-mockup: #ff453a;
-  --accent-mockup-light: rgba(255, 69, 58, 0.12);
-  --accent-mockup-text: #ff453a;
-}
-/* 2. Azure Theme */
-.app-mockup.theme-azure {
-  --accent-mockup: #007aff;
-  --accent-mockup-light: rgba(0, 122, 255, 0.15);
-  --accent-mockup-text: #0a84ff;
-}
-/* 3. Cyber Theme */
-.app-mockup.theme-cyber {
-  --accent-mockup: #ff007f;
-  --accent-mockup-light: rgba(255, 0, 127, 0.15);
-  --accent-mockup-text: #ff007f;
-}
-
-/* Applique les accents de thèmes */
-.app-mockup.theme-scarlet .mockup-nav-item.active { border-left: 2px solid var(--accent-mockup); color: var(--accent-mockup-text); }
-.app-mockup.theme-azure .mockup-nav-item.active { border-left: 2px solid var(--accent-mockup); color: var(--accent-mockup-text); }
-.app-mockup.theme-cyber .mockup-nav-item.active { border-left: 2px solid var(--accent-mockup); color: var(--accent-mockup-text); }
-
-.scarlet-event {
-  background-color: rgba(255, 69, 58, 0.12);
-  border-left: 3px solid #ff453a;
-  color: #ff453a;
-}
-
-.azure-event {
-  background-color: rgba(0, 122, 255, 0.12);
-  border-left: 3px solid #007aff;
-  color: #007aff;
-}
-
-.important-event {
-  background-color: rgba(255, 69, 58, 0.15);
-  border-left: 3.5px solid #ff3b30;
-  color: #ff3b30;
+  color: var(--muted);
 }
 
 /* ==========================================================================
@@ -887,8 +1045,10 @@ a {
 }
 
 .os-icon {
-  font-size: 48px;
   margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .download-card h3 {
@@ -1030,14 +1190,14 @@ a {
     justify-content: center;
   }
   
-  .mockup-body {
+  .app-container {
     grid-template-columns: 1fr;
     height: auto;
   }
   
-  .mockup-sidebar, .mockup-tasks {
+  .sidebar-left, .sidebar-right {
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border);
     height: auto;
   }
   
