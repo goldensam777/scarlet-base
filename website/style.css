@@ -1219,7 +1219,9 @@ a {
     gap: 20px;
     text-align: center;
   }
-  
+}
+
+@media (max-width: 700px) {
   .downloads-grid {
     flex-direction: column;
   }
