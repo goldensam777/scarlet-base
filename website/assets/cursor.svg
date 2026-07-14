@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <defs>
+    <!-- Halo externe Scarlet -->
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff3b30" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ff3b30" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Halo externe -->
+  <circle cx="10" cy="10" r="14" fill="url(#halo)"/>
+  <!-- Corps du curseur Scarlet -->
+  <polygon points="4,2 4,24 9,18 12,26 15,25 12,17 19,17"
+           fill="#d32f2f" stroke="#ff8a80" stroke-width="1" stroke-linejoin="round"/>
+  <!-- Reflet interne -->
+  <polygon points="4,2 4,10 8,6"
+           fill="#ff8a80" opacity="0.65"/>
+</svg>

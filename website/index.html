@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scarlet Base - Agenda & Notes Minimaliste et Ultra-Sécurisé</title>
+  <meta name="description" content="Découvrez Scarlet Base, l'agenda personnel et bloc-notes Markdown hors-ligne conçu pour la rapidité et la sécurité absolue de vos données. Téléchargement gratuit pour Windows, Linux et macOS.">
+  <meta name="keywords" content="agenda, bloc-notes, markdown, offline, electron, productivité, sécurisé, open-source">
+  <link rel="icon" type="image/svg+xml" href="assets/gem.svg">
+  
+  <!-- Polices Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header / Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo">
+        <img src="assets/gem.svg" alt="Scarlet Base Logo" class="logo-icon">
+        <span class="logo-text">Scarlet Base<span class="dot">.</span></span>
+      </div>
+      <nav class="nav-links">
+        <a href="#features">Fonctionnalités</a>
+        <a href="#mockup">Aperçu</a>
+        <a href="#install">Installation</a>
+        <a href="https://github.com/goldensam777/scarlet-base" target="_blank" class="github-link">
+          <svg class="git-icon" viewBox="0 0 24 24" width="20" height="20">
+            <path fill="currentColor" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.646.64.699 1.026 1.592 1.026 2.683 0 3.842-2.337 4.687-4.565 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.164 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+          </svg>
+          GitHub
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-bg-gradients">
+      <div class="gradient-sphere red-sphere"></div>
+      <div class="gradient-sphere blue-sphere"></div>
+    </div>
+    <div class="hero-container">
+      <div class="hero-content">
+        <span class="badge">Version 1.0.0 disponible 🚀</span>
+        <h1>L'agenda réinventé.<br><span class="highlight">Sécurité absolue.</span></h1>
+        <p class="hero-lead">Scarlet Base est un compagnon de productivité hors-ligne ultra-rapide. Organisez votre calendrier, gérez vos tâches et écrivez vos notes en Markdown avec l'assurance que vos données restent 100% privées.</p>
+        
+        <div class="hero-actions">
+          <a href="#download-options" class="btn btn-primary btn-large">Télécharger gratuitement</a>
+          <a href="#mockup" class="btn btn-secondary btn-large">Explorer l'interface</a>
+        </div>
+        
+        <div class="hero-platforms">
+          <span>Disponible sur :</span>
+          <div class="platform-icons">
+            <span class="platform" title="Windows">🪟 Windows (.msi, .exe)</span>
+            <span class="platform" title="Linux">🐧 Linux (.deb, AppImage)</span>
+            <span class="platform" title="macOS">🍎 macOS (.dmg)</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="hero-visual">
+        <div class="gem-3d-container">
+          <img src="assets/gem.svg" alt="3D Scarlet Gem Logo" class="gem-large-3d">
+          <div class="gem-shadow"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <div class="section-container">
+      <div class="section-header">
+        <h2>Conçu pour l'excellence au quotidien</h2>
+        <p>Une expérience fluide, sans compromis sur la confidentialité ou la résilience.</p>
+      </div>
+      
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3>Écriture atomique & Backup</h3>
+          <p>Fini les bases de données corrompues après un crash. Scarlet Base effectue des sauvegardes automatiques en tâche de fond et garantit des écritures physiques sécurisées sur votre disque.</p>
+        </div>
+        
+        <!-- Feature 2 -->
+        <div class="feature-card">
+          <div class="feature-icon">📝</div>
+          <h3>Bloc-Notes Markdown</h3>
+          <p>Rédigez vos notes au format Markdown avec coloration syntaxique complète, rendu interactif instantané et liaisons bidirectionnelles dynamiques avec vos tâches quotidiennes.</p>
+        </div>
+        
+        <!-- Feature 3 -->
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Performance Native</h3>
+          <p>Propulsé par Electron et Vite, Scarlet Base démarre instantanément, consomme un minimum de ressources et s'exécute entièrement en local, sans aucune dépendance cloud.</p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h3>Aesthétiques Premium</h3>
+          <p>Un design néo-rétro épuré doté de transitions fluides, de contrôles de fenêtres interactifs escamotables et de thèmes personnalisés (Azure, Scarlet, etc.) pour épouser votre style.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Mockup Section -->
+  <section id="mockup" class="mockup-section">
+    <div class="section-container">
+      <div class="section-header">
+        <h2>Une Interface Épurée</h2>
+        <p>Cliquez sur les éléments interactifs de la maquette pour découvrir les fonctionnalités intégrées.</p>
+      </div>
+
+      <!-- App Mockup Shell -->
+      <div class="app-mockup" id="interactive-app">
+        <!-- Mockup Titlebar -->
+        <div class="mockup-titlebar">
+          <div class="mockup-logo">
+            <img src="assets/gem.svg" alt="Gem" width="16" height="16">
+            <span>Scarlet Base</span>
+          </div>
+          <div class="mockup-controls">
+            <span class="ctrl-sub dot-min"></span>
+            <span class="ctrl-sub dot-max"></span>
+            <span class="ctrl-close">✕</span>
+          </div>
+        </div>
+        
+        <!-- Mockup Main Body -->
+        <div class="mockup-body">
+          <!-- Sidebar -->
+          <div class="mockup-sidebar">
+            <div class="sidebar-header">
+              <span class="logo-text">Scarlet Base<span class="dot">.</span></span>
+            </div>
+            
+            <div class="mockup-nav-item active">📅 Agenda</div>
+            <div class="mockup-nav-item">📝 Notes quotidiennes</div>
+            
+            <div class="sidebar-section-title">MES AGENDAS</div>
+            <div class="mockup-agenda-item"><span class="bullet perso"></span>Perso</div>
+            <div class="mockup-agenda-item"><span class="bullet travail"></span>Travail</div>
+            <div class="mockup-agenda-item"><span class="bullet important"></span>Important</div>
+            
+            <div class="theme-select-container">
+              <label>THÈME</label>
+              <select class="mockup-select" id="theme-selector">
+                <option value="scarlet">Scarlet (Rouge)</option>
+                <option value="azure">Azure (Bleu)</option>
+                <option value="cyber">Cyberpunk (Néon)</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Calendar View -->
+          <div class="mockup-content">
+            <div class="content-header">
+              <div class="date-navigator">
+                <button class="mockup-btn">❮</button>
+                <span class="current-date">Lundi 14 Juillet 2026</span>
+                <button class="mockup-btn">❯</button>
+              </div>
+              <div class="view-modes">
+                <span class="view-tab active">Jour</span>
+                <span class="view-tab">Semaine</span>
+                <span class="view-tab">Mois</span>
+              </div>
+            </div>
+            
+            <!-- Calendar Time Slots -->
+            <div class="time-grid">
+              <div class="time-slot"><span class="time-label">09:00</span> <div class="event scarlet-event">Revue d'architecture Scarlet Base 🔍</div></div>
+              <div class="time-slot"><span class="time-label">11:00</span> <div class="event azure-event">Point d'équipe & Démarrage 🚀</div></div>
+              <div class="time-slot"><span class="time-label">14:00</span> <div class="event empty-event">Créer une note de conception...</div></div>
+              <div class="time-slot"><span class="time-label">16:00</span> <div class="event important-event">Validation finale de la Release 1.0.0 🏆</div></div>
+            </div>
+          </div>
+          
+          <!-- Task List Panel -->
+          <div class="mockup-tasks">
+            <div class="tasks-header">Tâches</div>
+            <div class="task-input-wrapper">
+              <input type="text" class="mockup-input" placeholder="Ajouter une tâche...">
+            </div>
+            <div class="task-list">
+              <div class="mockup-task"><input type="checkbox" checked> <span>Terminer le packaging deb/msi</span></div>
+              <div class="mockup-task"><input type="checkbox" checked> <span>Valider la robustesse de db.json</span></div>
+              <div class="mockup-task"><input type="checkbox"> <span>Mettre en ligne le site web vitrine</span></div>
+              <div class="mockup-task"><input type="checkbox"> <span>Rédiger les notes Obsidian de sprint</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Developer Quick Install Section -->
+  <section id="install" class="terminal-section">
+    <div class="section-container">
+      <div class="section-header">
+        <h2>Installation en une seule ligne</h2>
+        <p>Parfait pour les développeurs. Copiez-collez l'une des commandes ci-dessous pour installer et démarrer instantanément.</p>
+      </div>
+      
+      <div class="terminal-shell">
+        <div class="terminal-tabs">
+          <button class="term-tab active" onclick="switchTerm('linux')">Linux / macOS (Bash)</button>
+          <button class="term-tab" onclick="switchTerm('win')">Windows (PowerShell)</button>
+        </div>
+        
+        <!-- Bash Terminal -->
+        <div class="terminal-body active" id="term-linux">
+          <div class="term-line"><span class="term-prompt">$</span> <span class="term-cmd">curl -fsSL https://raw.githubusercontent.com/goldensam777/scarlet-base/master/setup.sh | bash</span></div>
+          <button class="copy-btn" onclick="copyCommand('curl -fsSL https://raw.githubusercontent.com/goldensam777/scarlet-base/master/setup.sh | bash', this)">Copier</button>
+        </div>
+        
+        <!-- PowerShell Terminal -->
+        <div class="terminal-body" id="term-win">
+          <div class="term-line"><span class="term-prompt">PS C:\></span> <span class="term-cmd">irm https://raw.githubusercontent.com/goldensam777/scarlet-base/master/setup.ps1 | iex</span></div>
+          <button class="copy-btn" onclick="copyCommand('irm https://raw.githubusercontent.com/goldensam777/scarlet-base/master/setup.ps1 | iex', this)">Copier</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download Grid Options -->
+  <section id="download-options" class="download-grid-section">
+    <div class="section-container">
+      <div class="section-header">
+        <h2>Téléchargements de Production</h2>
+        <p>Installez Scarlet Base nativement sur votre système d'exploitation.</p>
+      </div>
+      
+      <div class="downloads-grid">
+        <!-- Windows Download Card -->
+        <div class="download-card">
+          <div class="os-icon">🪟</div>
+          <h3>Windows</h3>
+          <p class="os-support">Windows 10 / 11</p>
+          <div class="download-actions">
+            <a href="https://github.com/goldensam777/scarlet-base/releases/download/v1.0.0/Scarlet-Base-1.0.0.msi" class="btn btn-download">
+              Télécharger l'installateur .msi
+            </a>
+            <a href="https://github.com/goldensam777/scarlet-base/releases/download/v1.0.0/Scarlet-Base-Setup-1.0.0.exe" class="btn btn-download-alt">
+              Télécharger l'exécutable .exe
+            </a>
+            <a href="https://github.com/goldensam777/scarlet-base/releases/download/v1.0.0/Scarlet-Base-1.0.0.exe" class="btn btn-download-link">
+              Version portable (.exe)
+            </a>
+          </div>
+        </div>
+        
+        <!-- Linux Download Card -->
+        <div class="download-card">
+          <div class="os-icon">🐧</div>
+          <h3>Linux</h3>
+          <p class="os-support">Ubuntu, Debian, Fedora, Arch...</p>
+          <div class="download-actions">
+            <a href="https://github.com/goldensam777/scarlet-base/releases/download/v1.0.0/scarlet-base_1.0.0_amd64.deb" class="btn btn-download">
+              Télécharger le paquet .deb (Ubuntu/Debian)
+            </a>
+            <a href="https://github.com/goldensam777/scarlet-base/releases/download/v1.0.0/Scarlet-Base-1.0.0.AppImage" class="btn btn-download-alt">
+              Télécharger l'AppImage Universelle
+            </a>
+          </div>
+        </div>
+        
+        <!-- macOS Download Card -->
+        <div class="download-card">
+          <div class="os-icon">🍎</div>
+          <h3>macOS</h3>
+          <p class="os-support">macOS Monterey ou supérieur</p>
+          <div class="download-actions">
+            <a href="https://github.com/goldensam777/scarlet-base/releases/download/v1.0.0/Scarlet-Base-1.0.0.dmg" class="btn btn-download">
+              Télécharger pour Mac Intel (.dmg)
+            </a>
+            <a href="https://github.com/goldensam777/scarlet-base/releases/download/v1.0.0/Scarlet-Base-1.0.0-arm64.dmg" class="btn btn-download-alt">
+              Télécharger pour Apple Silicon (.dmg)
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <img src="assets/gem.svg" alt="Gem" width="20" height="20">
+        <span>Scarlet Base - Projet open-source sous licence MIT.</span>
+      </div>
+      <div class="footer-right">
+        <span>Développé par Péniel Gold Sam &copy; 2026</span>
+        <a href="https://github.com/goldensam777/scarlet-base" target="_blank">Dépôt GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript interactif -->
+  <script>
+    // Switch de terminal interactif
+    function switchTerm(platform) {
+      document.querySelectorAll('.term-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.terminal-body').forEach(body => body.classList.remove('active'));
+      
+      if (platform === 'linux') {
+        document.querySelector('.term-tab:nth-child(1)').classList.add('active');
+        document.getElementById('term-linux').classList.add('active');
+      } else {
+        document.querySelector('.term-tab:nth-child(2)').classList.add('active');
+        document.getElementById('term-win').classList.add('active');
+      }
+    }
+
+    // Copie de commande
+    function copyCommand(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = btn.innerText;
+        btn.innerText = 'Copié ! ✓';
+        btn.style.backgroundColor = '#28a745';
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.style.backgroundColor = '';
+        }, 2000);
+      });
+    }
+
+    // Interaction de changement de thème sur la maquette
+    const themeSelector = document.getElementById('theme-selector');
+    const interactiveApp = document.getElementById('interactive-app');
+
+    themeSelector.addEventListener('change', (e) => {
+      const selectedTheme = e.target.value;
+      
+      // Supprimer les classes de thème existantes
+      interactiveApp.classList.remove('theme-azure', 'theme-cyber', 'theme-scarlet');
+      
+      if (selectedTheme === 'azure') {
+        interactiveApp.classList.add('theme-azure');
+      } else if (selectedTheme === 'cyber') {
+        interactiveApp.classList.add('theme-cyber');
+      } else {
+        interactiveApp.classList.add('theme-scarlet');
+      }
+    });
+
+    // Initialiser le thème par défaut sur la maquette
+    interactiveApp.classList.add('theme-scarlet');
+  </script>
+</body>
+</html>

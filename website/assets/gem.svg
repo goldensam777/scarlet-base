@@ -1,0 +1,61 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Dégradé face supérieure (Table) -->
+    <linearGradient id="topFace" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff453a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d32f2f;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Dégradé couronne centre -->
+    <linearGradient id="centerCrown" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff5252;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c62828;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Dégradé facette basse gauche -->
+    <linearGradient id="leftFacet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#990000;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4a0000;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Dégradé facette basse centre -->
+    <linearGradient id="centerFacet" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#cc0000;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#660000;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Dégradé facette basse droite -->
+    <linearGradient id="rightFacet" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#660000;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#260000;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Corps du diamant en 3D (Élargi et plus de facettes) -->
+  
+  <!-- Facettes basses (Pointe basse) -->
+  <!-- Facette basse gauche -->
+  <path d="M20 80 L100 185 L60 95 Z" fill="url(#leftFacet)" />
+  <!-- Facette basse centre -->
+  <path d="M60 95 L100 185 L140 95 Z" fill="url(#centerFacet)" />
+  <!-- Facette basse droite -->
+  <path d="M140 95 L100 185 L180 80 Z" fill="url(#rightFacet)" />
+  
+  <!-- Facettes de la couronne (Haut) -->
+  <!-- Couronne gauche externe -->
+  <path d="M20 80 L60 35 L80 60 Z" fill="#7f0000" />
+  <!-- Couronne gauche interne -->
+  <path d="M20 80 L80 60 L60 95 Z" fill="#b71c1c" />
+  <!-- Couronne centre -->
+  <path d="M60 95 L80 60 L120 60 L140 95 Z" fill="url(#centerCrown)" />
+  <!-- Couronne droite interne -->
+  <path d="M140 95 L120 60 L180 80 Z" fill="#a30000" />
+  <!-- Couronne droite externe -->
+  <path d="M180 80 L120 60 L140 35 Z" fill="#4a0000" />
+  
+  <!-- Table supérieure (Face plate) -->
+  <path d="M60 35 L140 35 L120 60 L80 60 Z" fill="url(#topFace)" />
+  
+  <!-- Lignes de structure internes pour souligner le relief 3D -->
+  <path d="M20 80 L180 80 M60 35 L140 35 M80 60 L120 60 M60 95 L140 95 M100 185 L100 95" fill="none" stroke="white" stroke-opacity="0.15" stroke-width="0.5"/>
+</svg>
