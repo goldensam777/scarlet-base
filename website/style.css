@@ -304,8 +304,12 @@ a {
   color: var(--text-secondary);
 }
 
-.platform svg {
-  opacity: 0.8;
+.platform img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  vertical-align: middle;
+  border-radius: 2px;
 }
 
 /* Visuel Hero Gem */
@@ -1021,7 +1025,7 @@ a {
    ========================================================================== */
 .downloads-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 32px;
   margin-top: 40px;
 }
@@ -1049,6 +1053,14 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 48px;
+}
+
+.os-icon img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 .download-card h3 {
@@ -1205,5 +1217,9 @@ a {
     flex-direction: column;
     gap: 20px;
     text-align: center;
+  }
+  
+  .downloads-grid {
+    grid-template-columns: 1fr;
   }
 }
