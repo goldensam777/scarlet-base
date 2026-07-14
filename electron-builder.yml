@@ -20,11 +20,11 @@ win:
   target:
     - nsis
     - portable
+    - msi
 linux:
   target:
     - AppImage
     - deb
-    - rpm
 publish:
   provider: github
   owner: goldensam777

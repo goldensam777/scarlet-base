@@ -1,10 +1,10 @@
 @echo off
 chcp 65001 >nul
 setlocal enabledelayedexpansion
-title Scarlet Base - Assistant d'Installation 🤖
+title Scarlet Base - Assistant d'Installation
 
 echo ==========================================================
-echo          Scarlet Base - Assistant d'Installation 🤖
+echo          Scarlet Base - Assistant d'Installation
 echo ==========================================================
 echo Ce script va preparer le projet sur votre machine :
 echo 1. Verification des outils requis (git, node, npm)
