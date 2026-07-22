@@ -624,7 +624,10 @@ function renderEventsPills(dISO: string, container: HTMLElement): void {
     }
 
     pill.style.setProperty('--event-color', color);
-    pill.style.setProperty('--event-bg', hexToRgba(color, 0.08));
+    pill.style.setProperty('--event-bg', hexToRgba(color, 0.16));
+    pill.style.setProperty('--event-bg-hover', hexToRgba(color, 0.28));
+    pill.style.setProperty('--event-border', hexToRgba(color, 0.35));
+    pill.style.setProperty('--event-glow', hexToRgba(color, 0.25));
     
     let text = '';
     if (t.type === 'birthday') {
@@ -687,7 +690,10 @@ function renderWeekView(): void {
         const color = getCategoryColor(t.category);
         item.className = 'week-all-day-pill' + (t.done ? ' done' : '');
         item.style.setProperty('--event-color', color);
-        item.style.setProperty('--event-bg', hexToRgba(color, 0.08));
+        item.style.setProperty('--event-bg', hexToRgba(color, 0.16));
+        item.style.setProperty('--event-bg-hover', hexToRgba(color, 0.28));
+        item.style.setProperty('--event-border', hexToRgba(color, 0.35));
+        item.style.setProperty('--event-glow', hexToRgba(color, 0.25));
         
         let prefix = '';
         if (t.type === 'birthday') prefix = '🎂 ';
@@ -774,15 +780,25 @@ function renderWeekView(): void {
       block.style.top = `${topOffset}px`;
       block.style.height = `${height}px`;
       block.style.setProperty('--event-color', color);
-      block.style.setProperty('--event-bg', hexToRgba(color, 0.08));
+      block.style.setProperty('--event-bg', hexToRgba(color, 0.16));
+      block.style.setProperty('--event-bg-hover', hexToRgba(color, 0.28));
+      block.style.setProperty('--event-border', hexToRgba(color, 0.35));
+      block.style.setProperty('--event-glow', hexToRgba(color, 0.30));
       
-      let prefix = '';
-      if (t.type === 'reminder') prefix = '🔔 ';
-      else if (t.type === 'event') prefix = '🕒 ';
+      let typeBadge = '';
+      const tType = t.type as string | undefined;
+      if (tType === 'reminder') typeBadge = '<span class="evt-badge">🔔 RAPPEL</span>';
+      else if (tType === 'event') typeBadge = '<span class="evt-badge">🕒 ÉVÉNEMENT</span>';
+      else if (tType === 'birthday') typeBadge = '<span class="evt-badge">🎂 ANNIVERSAIRE</span>';
+
+      const timeDisplay = `${t.time}${t.type === 'event' && t.endTime ? ' – ' + t.endTime : ''}`;
 
       block.innerHTML = `
-        <span class="evt-time">${t.time}${t.type === 'event' && t.endTime ? ' – ' + t.endTime : ''}</span>
-        <span class="evt-title">${prefix}${escapeHtml(t.title)}</span>
+        <div class="evt-header">
+          <span class="evt-time-pill">${timeDisplay}</span>
+          ${typeBadge}
+        </div>
+        <div class="evt-title">${escapeHtml(t.title)}</div>
       `;
       block.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -829,7 +845,10 @@ function renderDayView(): void {
       const color = getCategoryColor(t.category);
       item.className = 'week-all-day-pill' + (t.done ? ' done' : '');
       item.style.setProperty('--event-color', color);
-      item.style.setProperty('--event-bg', hexToRgba(color, 0.08));
+      item.style.setProperty('--event-bg', hexToRgba(color, 0.16));
+      item.style.setProperty('--event-bg-hover', hexToRgba(color, 0.28));
+      item.style.setProperty('--event-border', hexToRgba(color, 0.35));
+      item.style.setProperty('--event-glow', hexToRgba(color, 0.25));
       
       let prefix = '';
       if (t.type === 'birthday') prefix = '🎂 ';
@@ -909,15 +928,25 @@ function renderDayView(): void {
     block.style.top = `${topOffset}px`;
     block.style.height = `${height}px`;
     block.style.setProperty('--event-color', color);
-    block.style.setProperty('--event-bg', hexToRgba(color, 0.08));
+    block.style.setProperty('--event-bg', hexToRgba(color, 0.16));
+    block.style.setProperty('--event-bg-hover', hexToRgba(color, 0.28));
+    block.style.setProperty('--event-border', hexToRgba(color, 0.35));
+    block.style.setProperty('--event-glow', hexToRgba(color, 0.30));
     
-    let prefix = '';
-    if (t.type === 'reminder') prefix = '🔔 ';
-    else if (t.type === 'event') prefix = '🕒 ';
+    let typeBadge = '';
+    const tType = t.type as string | undefined;
+    if (tType === 'reminder') typeBadge = '<span class="evt-badge">🔔 RAPPEL</span>';
+    else if (tType === 'event') typeBadge = '<span class="evt-badge">🕒 ÉVÉNEMENT</span>';
+    else if (tType === 'birthday') typeBadge = '<span class="evt-badge">🎂 ANNIVERSAIRE</span>';
+
+    const timeDisplay = `${t.time}${t.type === 'event' && t.endTime ? ' – ' + t.endTime : ''}`;
 
     block.innerHTML = `
-      <span class="evt-time">${t.time}${t.type === 'event' && t.endTime ? ' – ' + t.endTime : ''}</span>
-      <span class="evt-title">${prefix}${escapeHtml(t.title)}</span>
+      <div class="evt-header">
+        <span class="evt-time-pill">${timeDisplay}</span>
+        ${typeBadge}
+      </div>
+      <div class="evt-title">${escapeHtml(t.title)}</div>
     `;
     block.addEventListener('click', (e) => {
       e.stopPropagation();
